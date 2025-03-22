@@ -21,15 +21,12 @@
 #include "accelerometer.h"
 #include "eficonsole.h"
 #include "console_io.h"
-#include "sensor_chart.h"
 #include "idle_thread.h"
 #include "kline.h"
 
 #if EFI_PROD_CODE
 #include "mpu_util.h"
 #endif /* EFI_PROD_CODE */
-
-#include "mmc_card.h"
 
 #include "AdcConfiguration.h"
 #include "idle_hardware.h"
@@ -137,6 +134,7 @@ SPIDriver * getSpiDevice(spi_device_e spiDevice) {
 #if HAL_USE_ADC
 
 static FastAdcToken fastMapSampleIndex;
+static FastAdcToken fastMapSampleIndex2;
 
 /**
  * This method is not in the adc* lower-level file because it is more business logic then hardware.
@@ -147,7 +145,8 @@ void onFastAdcComplete(adcsample_t*) {
 
 #ifdef MODULE_MAP_AVERAGING
 	engine->module<MapAveragingModule>()->submitSample(
-			adcToVoltsDivided(getFastAdc(fastMapSampleIndex), engineConfiguration->map.sensor.hwChannel)
+			adcToVoltsDivided(getFastAdc(fastMapSampleIndex), engineConfiguration->map.sensor.hwChannel),
+			adcToVoltsDivided(getFastAdc(fastMapSampleIndex2), engineConfiguration->map2HwChannel)
 		);
 #endif // MODULE_MAP_AVERAGING
 }
@@ -156,6 +155,7 @@ void onFastAdcComplete(adcsample_t*) {
 static void calcFastAdcIndexes() {
 #if HAL_USE_ADC
 	fastMapSampleIndex = enableFastAdcChannel("Fast MAP", engineConfiguration->map.sensor.hwChannel);
+	fastMapSampleIndex2 = enableFastAdcChannel("Fast MAP", engineConfiguration->map2HwChannel);
 #endif/* HAL_USE_ADC */
 }
 
@@ -325,10 +325,6 @@ void initHardwareNoConfig() {
 	initTriggerCentral();
 #endif /* EFI_SHAFT_POSITION_INPUT */
 
-#if EFI_FILE_LOGGING
-	initEarlyMmcCard();
-#endif // EFI_FILE_LOGGING
-
 #if HAL_USE_PAL && EFI_PROD_CODE
 	// this should be initialized before detectBoardType()
 	efiExtiInit();
@@ -380,10 +376,6 @@ void initHardware() {
 	if (hasFirmwareError()) {
 		return;
 	}
-
-#if HAL_USE_ADC
-	initAdcInputs();
-#endif /* HAL_USE_ADC */
 
 #if EFI_SOFTWARE_KNOCK
 	initSoftwareKnock();

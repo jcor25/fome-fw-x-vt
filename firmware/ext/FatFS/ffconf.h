@@ -28,7 +28,7 @@
 /   3: f_lseek() function is removed in addition to 2. */
 
 
-#define FF_USE_STRFUNC	0
+#define FF_USE_STRFUNC	1
 /* This option switches string functions, f_gets(), f_putc(), f_puts() and f_printf().
 /
 /  0: Disable string functions.
@@ -242,7 +242,7 @@
 /      lock control is independent of re-entrancy. */
 
 
-#define FF_FS_REENTRANT   0
+#define FF_FS_REENTRANT   1
 #define FF_FS_TIMEOUT     TIME_MS2I(1000)
 #define FF_SYNC_t         semaphore_t*
 /* The option FF_FS_REENTRANT switches the re-entrancy (thread safe) of the FatFs
