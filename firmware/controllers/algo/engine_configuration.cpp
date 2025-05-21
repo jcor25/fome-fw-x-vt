@@ -387,8 +387,9 @@ static void setDefaultEngineConfiguration() {
 	engineConfiguration->canWriteEnabled = true;
 	engineConfiguration->canVssScaling = 1.0f;
 
-	// Don't enable, but set default address
+	// Don't enable, but set default addresses
 	engineConfiguration->verboseCanBaseAddress = CAN_DEFAULT_BASE;
+	engineConfiguration->ecumasterEgtToCanBaseId = 0x660;
 
 	strcpy(config->wifiAccessPointSsid, "FOME EFI");
 	setArrayValues(config->wifiAccessPointPassword, 0);
@@ -548,11 +549,6 @@ static void setDefaultEngineConfiguration() {
 	engineConfiguration->isWaveAnalyzerEnabled = true;
 
 	engineConfiguration->acIdleRpmBump = 200;
-
-	// Currently this is offset from fire event, not TDC
-	// TODO: convert to offset from TDC
-	engineConfiguration->knockDetectionWindowStart = 15.0 + 5.0;
-	engineConfiguration->knockDetectionWindowEnd = 15.0 + 45.0;
 
 	engineConfiguration->triggerSimulatorRpm = 1200;
 	engineConfiguration->fakeFullSyncForStimulation = true;
