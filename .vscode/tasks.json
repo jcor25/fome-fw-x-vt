@@ -196,14 +196,14 @@
 			}
 		},
 		{
-			"label": "Build Unit Tests",
+			"label": "Build Firmware (VTHPNP)",
 			"type": "shell",
-			"command": "make -j12",
+			"command": "bash ./compile_vthpnp.sh",
 			"windows": {
-				"command": "wsl make -j12"
+				"command": "wsl bash -lc 'bash ./compile_vthpnp.sh'"
 			},
 			"options": {
-				"cwd": "${workspaceRoot}/unit_tests"
+				"cwd": "${workspaceRoot}/firmware/config/boards/vthpnp"
 			},
 			"problemMatcher": [],
 			"group": {
