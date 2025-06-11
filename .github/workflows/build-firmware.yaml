@@ -16,7 +16,7 @@ on:
 
 jobs:
   build-libopenblt-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-selfhost
 
     steps:
     - uses: actions/checkout@v4
@@ -231,6 +231,9 @@ jobs:
           #   folder: config/boards/tdg-pdm8
           #   ini-file: fome_tdg-pdm8.ini
 
+          - build-target: vthpnp
+            folder: config/boards/vthpnp
+            ini-file: fome_vthpnp.ini
     steps:
     - name: Check branch name
       if: ${{ contains(github.ref_name, '.') }}
