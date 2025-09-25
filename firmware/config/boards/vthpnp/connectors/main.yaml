@@ -1,0 +1,179 @@
+pins:
+  - id: G7
+    class: outputs
+    ts_name: A1  - INJ 1
+
+  - id: D10
+    class: outputs
+    ts_name: A2  - INJ 4
+
+  - id: G8
+    class: outputs
+    ts_name: A3  - INJ 2
+
+  - id: D15
+    class: outputs
+    ts_name: A4  - VTS/HS1
+
+  - id: D11
+    class: outputs
+    ts_name: A5  - INJ 3
+
+  - id: B8
+    class: outputs
+    ts_name: A6  - TACH
+
+  - id: G2
+    class: outputs
+    ts_name: A7  - FP Rly
+
+  - id: C13
+    class: outputs
+    ts_name: A8  - IGN 1
+
+  - id: C6
+    class: outputs
+    ts_name: A9  - IACV/PWM1
+
+  - id: E5
+    class: outputs
+    ts_name: A10 - IGN 2
+
+  - id: C7
+    class: outputs
+    ts_name: A11 - EGR/PWM2
+
+  - id: G4
+    class: outputs
+    ts_name: A12 - FAN Rly
+
+  - id: G3
+    class: outputs
+    ts_name: A13 - MIL CTR
+
+  - id: E4
+    class: outputs
+    ts_name: A14 - IGN 3
+
+  - id: G5
+    class: outputs
+    ts_name: A15 - AC Rly
+
+  - id: G6
+    class: outputs
+    ts_name: A16 - Alt CTR
+
+  - id: C9
+    class: outputs
+    ts_name: A17 - IAB/PWM3
+
+  - id: D14
+    class: outputs
+    ts_name: A18 - HS2
+
+  - id: E2
+    class: outputs
+    ts_name: A21 - ICM CTR
+
+  - id: E3
+    class: outputs
+    ts_name: A22 - IGN 4
+
+  - id: EFI_ADC_5
+    class: analog_inputs
+    ts_name: A25 - BAT VOLT
+    
+  - id: E13
+    class: switch_inputs
+    function: AC / DIN2
+    type: hall
+    ts_name: B5  - AC/DIN1
+    color: gray
+
+  - id: [E12, E12]
+    class: [event_inputs, switch_inputs]
+    ts_name: B6  - DIN2
+    
+  - id: [F3, F3]
+    class: [event_inputs, switch_inputs]
+    ts_name: B7  - CLUTCH/DIN3
+    
+  - id: [F4, F4]
+    class: [event_inputs, switch_inputs]
+    ts_name: B8  - PSSW/DIN4
+
+  - id: F5
+    class: event_inputs
+    ts_name: B10 - VSS/DIN5
+
+  - id: E15
+    class: event_inputs
+    ts_name: B11 - CMP/DIN6
+
+  - id: E14
+    class: event_inputs
+    ts_name: B15 - CKP/DIN7
+    
+  - id: F6
+    class: switch_inputs
+    ts_name: D2  - Brk/DIN8
+
+  - id: A6
+    class: switch_inputs
+    ts_name: D4  - SCS/RES1
+
+  - id: EFI_ADC_3
+    class: analog_inputs
+    ts_name: D5  - AIN1
+
+  - id: [B1, B1]
+    class: [event_inputs, switch_inputs]
+    ts_name: D6  - VTPSW/RES2
+
+  - id: EFI_ADC_10
+    class: analog_inputs
+    ts_name: D7  - TXD/AIN2
+
+  - id: EFI_ADC_1
+    class: analog_inputs
+    ts_name: D8  - AIN3
+
+  - id: EFI_ADC_11
+    class: analog_inputs
+    ts_name: D9  - AIN4
+
+  - id: EFI_ADC_15
+    class: analog_inputs
+    ts_name: D10 - AIN5/TIN1
+
+  - id: EFI_ADC_4
+    class: analog_inputs
+    ts_name: D11 - TPS/AIN6
+    
+  - id: EFI_ADC_14
+    class: analog_inputs
+    ts_name: D12 - AIN7/TIN2
+
+  - id: EFI_ADC_12
+    class: analog_inputs 
+    ts_name: D13 - ECT/TIN3
+
+  - id: EFI_ADC_0
+    class: analog_inputs
+    ts_name: D14 - O2/AIN8
+
+  - id: EFI_ADC_13
+    class: analog_inputs
+    ts_name: D15 - IAT/TIN4
+
+  - id: EFI_ADC_7
+    class: analog_inputs
+    ts_name: D16 - AIN9
+
+  - id: EFI_ADC_2
+    class: analog_inputs
+    ts_name: D17 - MAP/AIN10
+
+  - id: EFI_ADC_8
+    class: analog_inputs
+    ts_name: D18 - AIN11
