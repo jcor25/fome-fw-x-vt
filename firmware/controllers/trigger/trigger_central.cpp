@@ -478,11 +478,6 @@ void TriggerCentral::decodeMapCam(efitick_t timestamp, EngPhase currentPhase) {
 			mapCamPrevCycleValue = map;
 
 			if (diff > 0) {
-				mapVvt_map_peak++;
-				int revolutionCounter = getTriggerCentral()->triggerState.getCrankSynchronizationCounter();
-				mapVvt_MAP_AT_CYCLE_COUNT = revolutionCounter - prevChangeAtCycle;
-				prevChangeAtCycle = revolutionCounter;
-
 				hwHandleVvtCamSignal(true,  timestamp, /*index*/0);
 				hwHandleVvtCamSignal(false, timestamp, /*index*/0);
 #if EFI_UNIT_TEST
@@ -631,12 +626,6 @@ void TriggerCentral::handleShaftSignal(TriggerEvent signal, efitick_t timestamp)
 		m_lastToothPhaseFromSyncPoint = currentTrgPhase;
 	}
 
-	// Update engine RPM
-	rpmShaftPositionCallback(triggerIndexForListeners, timestamp);
-
-	// Schedule the TDC mark
-	tdcMarkCallback(triggerIndexForListeners, timestamp);
-
 	EngPhase currentEnginePhase = toEngPhase(currentTrgPhase);
 	currentEngineDecodedPhase = currentEnginePhase.angle;
 
@@ -657,7 +646,7 @@ void TriggerCentral::handleShaftSignal(TriggerEvent signal, efitick_t timestamp)
 		engine->module<TpsAccelEnrichment>()->onEngineCycleTps();
 	}
 
-	EnginePhaseInfo phaseInfo {
+	const EnginePhaseInfo phaseInfo {
 		.timestamp = timestamp,
 
 		.currentTrgPhase = currentTrgPhase,
@@ -666,6 +655,12 @@ void TriggerCentral::handleShaftSignal(TriggerEvent signal, efitick_t timestamp)
 		.currentEngPhase = currentEnginePhase,
 		.nextEngPhase = toEngPhase(nextPhase),
 	};
+
+	// Update engine RPM
+	rpmShaftPositionCallback(triggerIndexForListeners, phaseInfo);
+
+	// Schedule the TDC mark
+	tdcMarkCallback(triggerIndexForListeners, timestamp);
 
 	// Handle ignition and injection
 	mainTriggerCallback(triggerIndexForListeners, phaseInfo);
