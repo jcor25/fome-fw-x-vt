@@ -9,8 +9,6 @@
 
 #pragma once
 
-#define EFI_GPIO_HARDWARE TRUE
-
 #ifndef EFI_BOOST_CONTROL
 #define EFI_BOOST_CONTROL TRUE
 #endif
@@ -22,8 +20,6 @@
 #ifndef EFI_ANTILAG_SYSTEM
 #define EFI_ANTILAG_SYSTEM TRUE
 #endif
-
-#define EFI_DYNO_VIEW TRUE
 
 #ifndef EFI_TOOTH_LOGGER
 #define EFI_TOOTH_LOGGER TRUE
@@ -42,27 +38,11 @@
 #define EFI_ENABLE_CRITICAL_ENGINE_STOP TRUE
 #define EFI_ENABLE_ENGINE_WARNING TRUE
 
-/**
- * if you have a 60-2 trigger, or if you just want better performance, you
- * probably want EFI_ENABLE_ASSERTS to be FALSE. Also you would probably want to FALSE
- * CH_DBG_ENABLE_CHECKS
- * CH_DBG_ENABLE_ASSERTS
- * in chconf.h
- *
- */
-#if !defined(EFI_ENABLE_ASSERTS)
- #define EFI_ENABLE_ASSERTS TRUE
-#endif /* EFI_ENABLE_ASSERTS */
-
 #ifndef EFI_CLOCK_LOCKS
 #define EFI_CLOCK_LOCKS TRUE
 #endif
 
 //#define EFI_UART_ECHO_TEST_MODE TRUE
-
-#ifndef HAL_TRIGGER_USE_PAL
-#define HAL_TRIGGER_USE_PAL TRUE
-#endif /* HAL_TRIGGER_USE_PAL */
 
 /**
  * TunerStudio support.
@@ -77,8 +57,6 @@
 #ifndef EFI_BLUETOOTH_SETUP
 #define EFI_BLUETOOTH_SETUP TRUE
 #endif /* EFI_BLUETOOTH_SETUP */
-
-#define EFI_DEFAILED_LOGGING FALSE
 
 /**
  * Dev console support.
@@ -153,10 +131,6 @@
  #define EFI_MEMS FALSE
 #endif
 
-#ifndef EFI_INTERNAL_ADC
-#define EFI_INTERNAL_ADC TRUE
-#endif
-
 #define EFI_USE_FAST_ADC TRUE
 
 #ifndef EFI_CAN_SUPPORT
@@ -178,10 +152,6 @@
  */
 #ifndef EFI_MAIN_RELAY_CONTROL
 #define EFI_MAIN_RELAY_CONTROL FALSE
-#endif
-
-#ifndef EFI_PWM
-#define EFI_PWM TRUE
 #endif
 
 #ifndef EFI_VEHICLE_SPEED
