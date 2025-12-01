@@ -461,17 +461,15 @@ void commonInitEngineController() {
 	initMapAveraging();
 #endif /* MODULE_MAP_AVERAGING */
 
-#if EFI_BOOST_CONTROL
+#if EFI_ENGINE_CONTROL
 	initBoostCtrl();
-#endif /* EFI_BOOST_CONTROL */
+#endif /* EFI_ENGINE_CONTROL */
 
 #if EFI_LAUNCH_CONTROL
 	initLaunchControl();
 #endif
 
-#if EFI_UNIT_TEST
 	engine->rpmCalculator.Register();
-#endif /* EFI_UNIT_TEST */
 
 	initTachometer();
 	initSpeedometer();
@@ -580,18 +578,16 @@ bool validateConfig() {
 		ensureArrayIsAscending("VR threshold", cfg.rpmBins);
 	}
 
-#if EFI_BOOST_CONTROL
 	// Boost
 	if (engineConfiguration->isBoostControlEnabled) {
 		ensureArrayIsAscending("Boost open loop Y axis", config->boostTpsBins);
 		ensureArrayIsAscending("Boost open loop X axis", config->boostRpmBins);
 
-		if (engineConfiguration->boostType != CLOSED_LOOP) {
+		if (engineConfiguration->boostType == CLOSED_LOOP) {
 			ensureArrayIsAscending("Boost closed loop X axis", config->boostClosedLoopXAxisBins);
 			ensureArrayIsAscending("Boost closed loop Y axis", config->boostClosedLoopYAxisBins);
 		}
 	}
-#endif // EFI_BOOST_CONTROL
 
 #if EFI_ANTILAG_SYSTEM
 	// ALS
