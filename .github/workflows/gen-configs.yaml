@@ -15,15 +15,15 @@ jobs:
     - name: Checkout Submodules
       run: |
         git submodule update --init --depth=1 unit_tests/googletest
-        git submodule update --init --depth=1 firmware/libfirmware
+        git submodule update --init --depth=1 firmware/ext/libfirmware
         git submodule update --init --depth=1 firmware/ext/lua
-        git submodule update --init --depth=1 firmware/controllers/lua/luaaa
-        git submodule update --init --depth=1 firmware/controllers/can/wideband_firmware
+        git submodule update --init --depth=1 firmware/ext/luaaa
+        git submodule update --init --depth=1 firmware/ext/wideband_firmware
 
     - uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
-        java-version: '8'
+        java-version: '21'
 
     - name: Install Tools
       working-directory: ./.github/workflows/
@@ -54,6 +54,7 @@ jobs:
 
     # Commit changes and catch the error that occurs if nothing has been changed (without catching other errors)
     - name: Commit fresh generated headers and TS project
+      if: ${{ github.repository == 'FOME-Tech/fome-fw' }}
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
@@ -87,7 +88,7 @@ jobs:
       id: extract_branch
 
     - name: Push configs
-      if: ${{env.NOCOMMIT != 'true'}}
+      if: ${{ github.repository == 'FOME-Tech/fome-fw' && env.NOCOMMIT != 'true' }}
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ github.token }}

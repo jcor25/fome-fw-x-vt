@@ -20,7 +20,7 @@ endif
 PROJECT_DIR = ../firmware
 PROJECT_CPU=simulator
 
-CHIBIOS = $(PROJECT_DIR)/ChibiOS
+CHIBIOS = $(PROJECT_DIR)/ext/ChibiOS
 RULESPATH = $(CHIBIOS)/os/common/startup/SIMIA32/compilers/GCC
 RULESFILE = $(RULESPATH)/rules.mk
 
@@ -33,10 +33,10 @@ PCH_DIR = $(PROJECT_DIR)/pch
 PCHSRC = $(PCH_DIR)/pch.h
 PCHSUB = simulator
 
-CHIBIOS_CONTRIB= $(PROJECT_DIR)/ChibiOS-Contrib
+CHIBIOS_CONTRIB = $(PROJECT_DIR)/ext/ChibiOS-Contrib
 
 # Configure libfirmware Paths/Includes
-RUSEFI_LIB = $(PROJECT_DIR)/libfirmware
+RUSEFI_LIB = $(PROJECT_DIR)/ext/libfirmware
 include $(RUSEFI_LIB)/util/util.mk
 include $(RUSEFI_LIB)/pt2001/pt2001.mk
 
@@ -212,6 +212,7 @@ INCDIR = . \
   $(CHIBIOS)/os/hal/lib/streams \
   $(GENERATED_DIR) \
   $(RUSEFI_LIB_INC) \
+  simulator/cfg \
   simulator/system \
   simulator/can \
   simulator

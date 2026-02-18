@@ -5,8 +5,8 @@
 #include "socket/include/socket.h"
 
 extern "C" {
-	#include "boot.h"
-	#include "net.h"
+#include "boot.h"
+#include "net.h"
 }
 
 static ServerSocket server;
@@ -15,7 +15,8 @@ static bool didInit = false;
 static bool wifiInitDone = false;
 
 struct WifiInitFinisher : public ThreadController<4096> {
-	WifiInitFinisher() : ThreadController("WiFi init", WIFI_THREAD_PRIORITY) {}
+	WifiInitFinisher()
+		: ThreadController("WiFi init", WIFI_THREAD_PRIORITY) {}
 
 	void ThreadTask() override {
 		waitForWifiInit();
@@ -27,6 +28,8 @@ struct WifiInitFinisher : public ThreadController<4096> {
 		address.sin_addr.s_addr = 0;
 
 		server.startListening(address);
+
+		wifiInitDone = true;
 	}
 } wifiInitFinisher;
 
@@ -39,14 +42,14 @@ void NetDeferredInit() {
 
 	initWifi();
 
-	wifiInitFinisher.start();
+	wifiInitFinisher.startThread();
 }
 
 uint8_t header[4] = {0xde, 0xad, 0xbe, 0xef};
 
 uint8_t outBuffer[512];
 
-void NetTransmitPacket(blt_int8u *data, blt_int8u len) {
+void NetTransmitPacket(blt_int8u* data, blt_int8u len) {
 	if (!wifiInitDone) {
 		return;
 	}
@@ -56,7 +59,7 @@ void NetTransmitPacket(blt_int8u *data, blt_int8u len) {
 	server.send(outBuffer, len + 1);
 }
 
-blt_bool NetReceivePacket(blt_int8u *data, blt_int8u *len) {
+blt_bool NetReceivePacket(blt_int8u* data, blt_int8u* len) {
 	if (!wifiInitDone) {
 		return BLT_FALSE;
 	}

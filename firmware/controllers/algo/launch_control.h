@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "timer.h"
+#include "efi_timer.h"
 #include "launch_control_state_generated.h"
 
 void initLaunchControl();
@@ -45,6 +45,7 @@ public:
 	void setTargetSkipRatio(float targetSkipRatio);
 
 	bool shouldSkip();
+
 private:
 	bool wasJustSkipped = false;
 	float m_targetSkipRatio = 0;

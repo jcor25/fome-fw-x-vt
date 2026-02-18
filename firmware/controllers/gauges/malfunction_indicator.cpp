@@ -77,7 +77,9 @@ static void displayErrorCode(ObdCode code) {
 
 class MILController : public PeriodicController<UTILITY_THREAD_STACK_SIZE> {
 public:
-	MILController()	: PeriodicController("MFIndicator") { }
+	MILController()
+		: PeriodicController("MFIndicator") {}
+
 private:
 	void OnStarted() override {
 		// Always do a 3 second blink on boot
@@ -105,7 +107,7 @@ static MILController instance;
 
 void initMalfunctionIndicator() {
 	instance.setPeriod(10 /*ms*/);
-	instance.start();
+	instance.startThread();
 }
 
 #endif /* EFI_MALFUNCTION_INDICATOR */

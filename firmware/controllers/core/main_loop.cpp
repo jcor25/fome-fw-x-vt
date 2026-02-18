@@ -22,13 +22,11 @@ private:
 static MainLoop mainLoop CCM_OPTIONAL;
 
 void initMainLoop() {
-	mainLoop.start();
+	mainLoop.startThread();
 }
 
 MainLoop::MainLoop()
-	: PeriodicController("MainLoop", PRIO_MAIN_LOOP, MAIN_LOOP_RATE)
-{
-}
+	: PeriodicController("MainLoop", PRIO_MAIN_LOOP, MAIN_LOOP_RATE) {}
 
 void MainLoop::PeriodicTask(efitick_t nowNt) {
 	ScopePerf perf(PE::MainLoop);
@@ -43,7 +41,7 @@ void MainLoop::PeriodicTask(efitick_t nowNt) {
 
 #if EFI_ELECTRONIC_THROTTLE_BODY
 	if (p & ETB_UPDATE_RATE) {
-		for (int i = 0 ; i < ETB_COUNT; i++) {
+		for (int i = 0; i < ETB_COUNT; i++) {
 			auto etb = engine->etbControllers[i];
 
 			if (etb) {

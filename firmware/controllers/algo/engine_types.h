@@ -12,7 +12,6 @@
 
 #include "rusefi_generated.h"
 
-
 /**
  * http://rusefi.com/wiki/index.php?title=Manual:Engine_Type
  */
@@ -31,12 +30,6 @@ enum class engine_type_e : uint32_t {
 	FORD_ASPIRE_1996 = 3,
 
 	FORD_INLINE_6_1995 = 7,
-	/**
-	 * one cylinder engine
-	 * 139qmb 50-90cc
-	 * http://rusefi.com/forum/viewtopic.php?f=3&t=332
-	 */
-	GY6_139QMB = 8,
 
 	PROTEUS_E65_6H_MAN_IN_THE_MIDDLE = 9,
 	HELLEN_NA8_96 = 10,
@@ -49,12 +42,7 @@ enum class engine_type_e : uint32_t {
 
 	FORD_ESCORT_GT = 14,
 
-	MITSU_4G93 = 16,
-
 	TEST_33816 = 18,
-
-
-	SUBARU_2003_WRX = 22,
 
 	/**
 	 * microRusEFI used as Body Control Module BCM BCU
@@ -84,10 +72,6 @@ enum class engine_type_e : uint32_t {
 
 	HELLEN_128_MERCEDES_4_CYL = 36,
 
-	MRE_SUBARU_EJ18 = 37,
-
-	DISCOVERY_PDM = 38,
-
 	PROTEUS_VW_B6 = 39,
 
 	FRANKENSO_BMW_M73_F = 40,
@@ -114,7 +98,6 @@ enum class engine_type_e : uint32_t {
 
 	BMW_M73_MRE_SLAVE = 51,
 
-
 	TEST_ISSUE_366_BOTH = 52,
 	TEST_ISSUE_366_RISE = 53,
 
@@ -136,14 +119,11 @@ enum class engine_type_e : uint32_t {
 
 	PROTEUS_BMW_M73 = 63,
 
-	DODGE_RAM = 64,
 	CITROEN_TU3JP = 65,
 
 	MRE_M111 = 68,
 
 	HELLEN_NB2 = 69,
-
-	SUBARUEG33_DEFAULTS = 70,
 
 	HELLEN_121_VAG_4_CYL = 71,
 	HELLEN_121_NISSAN_6_CYL = 72,
@@ -169,7 +149,7 @@ enum class engine_type_e : uint32_t {
 
 	HELLEN_NB2_36 = 86,
 
-	HELLEN_121_NISSAN_ALMERA_N16  = 87,
+	HELLEN_121_NISSAN_ALMERA_N16 = 87,
 
 	HELLEN_128_MERCEDES_6_CYL = 88,
 
@@ -196,17 +176,24 @@ enum class engine_type_e : uint32_t {
 	ET_UNUSED_1 = 1,
 	ET_UNUSED_5 = 5,
 	ET_UNUSED_6 = 6,
+	ET_UNUSED_8 = 8,
 	ET_UNUSED_19 = 19,
 	ET_UNUSED_97 = 97,
 	ET_UNUSED_98 = 98,
 	ET_UNUSED_17 = 17,
 	ET_UNUSED_13 = 13,
 	ET_UNUSED_15 = 15,
+	ET_UNUSED_16 = 16,
+	ET_UNUSED_22 = 22,
 	ET_UNUSED_33 = 33,
+	ET_UNUSED_37 = 37,
+	ET_UNUSED_38 = 38,
 	ET_UNUSED_43 = 43,
 	ET_UNUSED_57 = 57,
 	ET_UNUSED_60 = 60,
 	ET_UNUSED_61 = 61,
+	ET_UNUSED_64 = 64,
+	ET_UNUSED_70 = 70,
 	ET_UNUSED_91 = 91,
 
 	/**
@@ -218,7 +205,7 @@ enum class engine_type_e : uint32_t {
 /**
  * https://rusefi.com//wiki/index.php?title=Manual:Debug_fields
  */
-typedef enum __attribute__ ((__packed__)) {
+typedef enum __attribute__((__packed__)) {
 	DBG_0 = 0,
 	DBG_1 = 1,
 	DBG_2 = 2,
@@ -464,7 +451,6 @@ enum class trigger_type_e : uint32_t {
 	// Mitsubishi 3 cyl and 6 cyl
 	TT_36_2_1_1 = 71,
 
-
 	TT_VVT_MITSUBISHI_6G75 = 72,
 
 	TT_VVT_TOYOTA_4_1 = 73,
@@ -484,12 +470,13 @@ enum class trigger_type_e : uint32_t {
 
 	TT_VVT_MIATA_NA = 76,
 
-
-	// do not forget to edit "#define trigger_type_e_enum" line in integration/fome_config.txt file to propogate new value to rusefi.ini TS project
-	// do not forget to invoke "gen_config.bat" once you make changes to integration/fome_config.txt
-	// todo: one day a hero would integrate some of these things into Makefile in order to reduce manual magic
+	// do not forget to edit "#define trigger_type_e_enum" line in integration/fome_config.txt file to propogate new
+	// value to rusefi.ini TS project do not forget to invoke "gen_config.bat" once you make changes to
+	// integration/fome_config.txt todo: one day a hero would integrate some of these things into Makefile in order to
+	// reduce manual magic
 	//
-	// Another point: once you add a new trigger, run get_trigger_images.bat which would run fome_test.exe from unit_tests
+	// Another point: once you add a new trigger, run get_trigger_images.bat which would run fome_test.exe from
+	// unit_tests
 	//
 	TT_UNUSED = 77, // this is used if we want to iterate over all trigger types
 };
@@ -520,7 +507,7 @@ typedef enum {
 	TS_BENCH_CATEGORY = 22,
 	TS_UNUSED_23 = 23,
 	TS_UNUSED_24 = 24,
-	TS_SOLENOID_CATEGORY = 25,
+	TS_UNUSED_25 = 25,
 	TS_UNUSED_26 = 26,
 	TS_UNUSED_27 = 27,
 	TS_UNUSED_28 = 28,

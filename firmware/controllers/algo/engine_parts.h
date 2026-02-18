@@ -8,9 +8,7 @@
 #pragma once
 
 #include "static_vector.h"
-#include "timer.h"
-
-#define MOCK_ADC_SIZE 26
+#include "efi_timer.h"
 
 struct Accelerometer {
 	float lat = 0; // G value
@@ -32,20 +30,18 @@ struct warning_t {
 	Timer LastTriggered;
 	ObdCode Code = ObdCode::None;
 
-	warning_t() { }
+	warning_t() {}
 
 	explicit warning_t(ObdCode code)
-		: Code(code)
-	{
-	}
+		: Code(code) {}
 
 	// Equality just checks the code, timer doesn't matter
-	bool operator ==(const warning_t& other) const {
+	bool operator==(const warning_t& other) const {
 		return other.Code == Code;
 	}
 
 	// Compare against a plain OBD code
-	bool operator ==(const ObdCode other) const {
+	bool operator==(const ObdCode other) const {
 		return other == Code;
 	}
 };
@@ -68,8 +64,7 @@ public:
 	warningBuffer_t recentWarnings;
 };
 
-struct multispark_state
-{
+struct multispark_state {
 	efidur_t delay;
 	efidur_t dwell;
 	uint8_t count = 0;

@@ -6,7 +6,7 @@
 PROJECT = fome
 PROJECT_DIR = .
 
-CHIBIOS = $(PROJECT_DIR)/ChibiOS
+CHIBIOS = $(PROJECT_DIR)/ext/ChibiOS
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
 RULESFILE = $(RULESPATH)/rules.mk
 
@@ -22,10 +22,10 @@ PCH_DIR = $(PROJECT_DIR)/pch
 PCHSRC = $(PCH_DIR)/pch.h
 PCHSUB = firmware
 
-CHIBIOS_CONTRIB= $(PROJECT_DIR)/ChibiOS-Contrib
+CHIBIOS_CONTRIB = $(PROJECT_DIR)/ext/ChibiOS-Contrib
 
 # Configure libfirmware Paths/Includes
-RUSEFI_LIB = $(PROJECT_DIR)/libfirmware
+RUSEFI_LIB = $(PROJECT_DIR)/ext/libfirmware
 include $(RUSEFI_LIB)/util/util.mk
 include $(RUSEFI_LIB)/pt2001/pt2001.mk
 
@@ -268,7 +268,7 @@ ASMXSRC = $(ALLXASMSRC) \
   $(PROJECT_DIR)/hw_layer/main_hardfault_asm.S
 
 #
-# WARNING! order of variables is important here - for instance cypress own folders should go before default folders
+# WARNING! order of variables is important here - for instance hw layer ports own folders should go before default folders
 #
 INCDIR = \
   $(PCH_DIR) \

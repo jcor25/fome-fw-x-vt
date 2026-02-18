@@ -8,11 +8,10 @@
 #pragma once
 
 #include "rusefi_enums.h"
-#include "listener_array.h"
 #include "trigger_decoder.h"
 #include "instant_rpm_calculator.h"
 #include "trigger_central_generated.h"
-#include "timer.h"
+#include "efi_timer.h"
 #include "pin_repository.h"
 #include "local_version_holder.h"
 #include "cyclic_buffer.h"
@@ -146,24 +145,22 @@ public:
 
 #if EFI_SHAFT_POSITION_INPUT
 	PrimaryTriggerDecoder triggerState;
-#endif //EFI_SHAFT_POSITION_INPUT
+#endif // EFI_SHAFT_POSITION_INPUT
 
 	TriggerWaveform triggerShape;
 
 	VvtTriggerDecoder vvtState[BANKS_COUNT][CAMS_PER_BANK] = {
-		{
-			"VVT B1 Int",
+			{"VVT B1 Int",
 #if CAMS_PER_BANK >= 2
-			"VVT B1 Exh"
+			 "VVT B1 Exh"
 #endif
-		},
+			},
 #if BANKS_COUNT >= 2
-		{
-			"VVT B2 Int",
+			{"VVT B2 Int",
 #if CAMS_PER_BANK >= 2
-			"VVT B1 Exh"
+			 "VVT B1 Exh"
 #endif
-		}
+			}
 #endif
 	};
 
@@ -216,7 +213,7 @@ void onConfigurationChangeTriggerCallback();
 #define SYMMETRICAL_THREE_TIMES_CRANK_SENSOR_DIVIDER 6
 #define SYMMETRICAL_TWELVE_TIMES_CRANK_SENSOR_DIVIDER 24
 
-TriggerCentral * getTriggerCentral();
+TriggerCentral* getTriggerCentral();
 int getCrankDivider(operation_mode_e operationMode);
 
 constexpr bool isTriggerUpEvent(TriggerEvent event) {

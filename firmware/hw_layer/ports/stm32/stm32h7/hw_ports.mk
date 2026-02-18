@@ -1,10 +1,12 @@
 include $(PROJECT_DIR)/hw_layer/ports/stm32/stm32_common.mk
 
-HW_LAYER_EMS += $(PROJECT_DIR)/hw_layer/ports/stm32/stm32h7/stm32h7xx_hal_flash.c \
-				$(PROJECT_DIR)/hw_layer/ports/stm32/stm32h7/stm32h7xx_hal_flash_ex.c
+HW_LAYER_EMS += $(HW_STM32_PORT_DIR)/stm32h7/flash/stm32h7xx_hal_flash.c \
+				$(HW_STM32_PORT_DIR)/stm32h7/flash/stm32h7xx_hal_flash_ex.c
 
-HW_LAYER_EMS_CPP += $(PROJECT_DIR)/hw_layer/ports/stm32/stm32h7/mpu_util.cpp \
-					$(PROJECT_DIR)/hw_layer/ports/stm32/stm32_adc_v4.cpp \
+ALLINC += $(HW_STM32_PORT_DIR)/stm32h7/flash
+
+HW_LAYER_EMS_CPP += $(HW_STM32_PORT_DIR)/stm32h7/mpu_util.cpp \
+					$(HW_STM32_PORT_DIR)/stm32_adc_v4.cpp \
 					$(HW_STM32_PORT_DIR)/flash_int_h7.cpp \
 
 MCU_BOOTLOADER_FLASH = openblt_flash_h7.cpp
@@ -17,8 +19,4 @@ MCU = cortex-m7
 USE_FPU = hard
 USE_FPU_OPT = -mfloat-abi=$(USE_FPU) -mfpu=fpv5-d16
 LDSCRIPT = $(PROJECT_DIR)/hw_layer/ports/stm32/stm32h7/STM32H743xI.ld
-ALLCSRC += $(CHIBIOS)/os/hal/boards/ST_NUCLEO144_H743ZI/board.c
 CONFDIR = $(PROJECT_DIR)/hw_layer/ports/stm32/stm32h7/cfg
-
-# TODO: remove, for efifeatures.h
-ALLINC += $(PROJECT_DIR)/config/stm32h7ems

@@ -13,7 +13,10 @@ static void initSensorCli();
 static void initAuxDigital() {
 #if EFI_PROD_CODE
 	for (size_t i = 0; i < efi::size(engineConfiguration->luaDigitalInputPins); i++) {
-		efiSetPadMode("Lua Digital", engineConfiguration->luaDigitalInputPins[i], engineConfiguration->luaDigitalInputPinModes[i]);
+		efiSetPadMode(
+				"Lua Digital",
+				engineConfiguration->luaDigitalInputPins[i],
+				engineConfiguration->luaDigitalInputPinModes[i]);
 	}
 #endif // EFI_PROD_CODE
 }
@@ -65,7 +68,6 @@ void stopSensors() {
 	deinitTurbochargerSpeedSensor();
 	deinitAuxSpeedSensors();
 	deinitMap();
-	deinitInputShaftSpeedSensor();
 }
 
 void reconfigureSensors() {
@@ -79,7 +81,6 @@ void reconfigureSensors() {
 	initAuxSensors();
 	initVehicleSpeedSensor();
 	initTurbochargerSpeedSensor();
-	initInputShaftSpeedSensor();
 }
 
 // Mocking/testing helpers
@@ -99,8 +100,5 @@ static void initSensorCli() {
 
 	addConsoleAction("reset_sensor_mocks", Sensor::resetAllMocks);
 	addConsoleAction("show_sensors", Sensor::showAllSensorInfo);
-	addConsoleActionI("show_sensor",
-		[](int idx) {
-			Sensor::showInfo(static_cast<SensorType>(idx));
-		});
+	addConsoleActionI("show_sensor", [](int idx) { Sensor::showInfo(static_cast<SensorType>(idx)); });
 }

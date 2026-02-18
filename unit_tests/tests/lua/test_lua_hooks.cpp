@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "rusefi_lua.h"
 
-
 TEST(LuaHooks, TestCrc8) {
 	const char* realHDdata = R"(
 
@@ -36,7 +35,7 @@ TEST(LuaHooks, TestGetCalibration) {
 
 TEST(LuaHooks, TestSetCalibration) {
 	EngineTestHelper eth(engine_type_e::TEST_ENGINE);
-		const char* sourceCode = R"(
+	const char* sourceCode = R"(
 	
 		function testFunc()
 			setCalibration("cranking.rpm", 900, false)
@@ -44,7 +43,7 @@ TEST(LuaHooks, TestSetCalibration) {
 		end
 	
 		)";
-		EXPECT_EQ(testLuaReturnsNumber(sourceCode), 900);
+	EXPECT_EQ(testLuaReturnsNumber(sourceCode), 900);
 }
 
 TEST(LuaHooks, TestGetSensorByName) {
@@ -120,21 +119,25 @@ TEST(LuaHooks, CanTxDataLength) {
 }
 
 TEST(LuaHooks, LuaInterpolate) {
-	EXPECT_EQ(testLuaReturnsNumber(R"(
+	EXPECT_EQ(
+			testLuaReturnsNumber(R"(
 			function testFunc()
 				return interpolate(1, 10, 5, 50, 3)
 			end
-			)"), 30);
+			)"),
+			30);
 }
 
 TEST(LuaHooks, TestLuaTimer) {
-	EXPECT_EQ(testLuaReturnsNumber(R"(
+	EXPECT_EQ(
+			testLuaReturnsNumber(R"(
 			function testFunc()
 				local a = Timer.new()
 				a:reset()
 				return a:getElapsedSeconds()
 			end
-			)"), 0);
+			)"),
+			0);
 }
 
 static const char* sensorTest = R"(
@@ -196,7 +199,7 @@ TEST(LuaHooks, LuaPid) {
 }
 
 TEST(LuaHooks, TestPersistentValues) {
-	//EngineTestHelper eth(engine_type_e::TEST_ENGINE);
+	// EngineTestHelper eth(engine_type_e::TEST_ENGINE);
 
 	EXPECT_ANY_THROW(testLuaExecString("getPersistentValue(0)"));
 	EXPECT_NO_THROW(testLuaExecString("getPersistentValue(1)"));
@@ -222,4 +225,65 @@ TEST(LuaHooks, TestPersistentValues) {
 	end
 	)";
 	EXPECT_EQ(testLuaReturnsNumber(storeRetrieveCode), 1.5);
+}
+
+TEST(LuaHooks, TestGetChannel_InjectorPulseWidth) {
+	EngineTestHelper eth(engine_type_e::TEST_ENGINE);
+
+	engine->outputChannels.actualLastInjection = 0;
+
+	EXPECT_EQ(
+			testLuaReturnsNumber(R"(
+		function testFunc()
+			return getChannel("InjectorPulseWidth")
+		end
+	)"),
+			0);
+
+	engine->outputChannels.actualLastInjection = 1.23f;
+
+	EXPECT_NEAR(
+			testLuaReturnsNumber(R"(
+		function testFunc()
+			return getChannel("InjectorPulseWidth")
+		end
+	)"),
+			1.23f,
+			1e-4f);
+
+	engine->outputChannels.actualLastInjection = 4.56f;
+
+	EXPECT_NEAR(
+			testLuaReturnsNumber(R"(
+		function testFunc()
+			return getChannel("inJECtorpuLSeWiDtH")
+		end
+	)"),
+			4.56f,
+			1e-4f);
+}
+
+TEST(LuaHooks, TestGetChannel_AfrPreservesFraction) {
+	EngineTestHelper eth(engine_type_e::TEST_ENGINE);
+
+	// AFR = Lambda1 * stoichRatioPrimary
+	Sensor::setMockValue(SensorType::Lambda1, 0.93f);
+	engineConfiguration->stoichRatioPrimary = 14.7f; // 13.671
+
+	EXPECT_NEAR(
+			testLuaReturnsNumber(R"(
+		function testFunc()
+			return getChannel("AFR")
+		end
+	)"),
+			13.671f,
+			1e-4f);
+}
+
+TEST(LuaHooks, TestGetChannel_InvalidNameThrows) {
+	EngineTestHelper eth(engine_type_e::TEST_ENGINE);
+
+	EXPECT_ANY_THROW(testLuaExecString(R"(
+		getChannel("DefinitelyNotAChannel")
+	)"));
 }

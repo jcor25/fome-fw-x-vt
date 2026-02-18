@@ -14,15 +14,17 @@ DDEFS += -DENABLE_AUTO_DETECT_HSE=TRUE -DSTM32_HSECLK=25000000
 
 # disable some modules to shrink bootloader binary
 DDEFS += -DEFI_BOOTLOADER
-DDEFS += -DHAL_USE_EXT=FALSE -DHAL_USE_ICU=FALSE -DHAL_USE_PWM=FALSE -DHAL_USE_RTC=FALSE -DEF_LUA=FALSE
+DDEFS += -DHAL_USE_EXT=FALSE -DHAL_USE_ICU=FALSE -DHAL_USE_PWM=FALSE -DEF_LUA=FALSE
 #disable ChibiOS flash driver and prevent header from include
 DDEFS += -DHAL_USE_FLASH=FALSE
-
-DDEFS += -DEFI_USE_UART_DMA=FALSE
 
 DDEFS += -DEFI_USB_SERIAL=TRUE -DHAL_USE_USB_MSD=FALSE
 # disable CAN
 DDEFS += -DEFI_CAN_SUPPORT=FALSE
+
+# Offset the WiFi MAC address in the bootloader so we can switch the hosted network name
+# and not confuse connected clients (they see a new AP, rather than an AP that changed network name)
+DDEFS += -DWIFI_OFFSET_MAC
 
 # Cache is disabled on F7, H7
 DDEFS += -DSTM32_SRAM2_NOCACHE=FALSE -DSTM32_NOCACHE_SRAM1_SRAM2=FALSE -DSTM32_NOCACHE_SRAM3=FALSE
@@ -120,12 +122,11 @@ PCHSRC = $(PCH_DIR)/pch.h
 PCHSUB = bootloader
 
 # Imported source files and paths
-CHIBIOS = $(PROJECT_DIR)/ChibiOS
-# todo: looks like 'CHIBIOS_CONTRIB' path is universal shall we defined it only once?
-CHIBIOS_CONTRIB = $(CHIBIOS)/../ChibiOS-Contrib
+CHIBIOS = $(PROJECT_DIR)/ext/ChibiOS
+CHIBIOS_CONTRIB = $(PROJECT_DIR)/ext/ChibiOS-Contrib
 
 # Configure libfirmware Paths/Includes
-RUSEFI_LIB = $(PROJECT_DIR)/libfirmware
+RUSEFI_LIB = $(PROJECT_DIR)/ext/libfirmware
 include $(RUSEFI_LIB)/util/util.mk
 include $(RUSEFI_LIB)/pt2001/pt2001.mk
 
