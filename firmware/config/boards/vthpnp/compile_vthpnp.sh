@@ -1,2 +1,5 @@
-#!/usr/bin/env bash
-cd ../../../.. && bash bin/compile.sh config/boards/hellen/vthpnp/meta-info.env
+#!/bin/bash
+
+export USE_OPENBLT=yes
+
+bash ../common_make.sh vthpnp ARCH_STM32F4

@@ -36,6 +36,22 @@
 			}
 		},
 		{
+			"label": "Build Firmware VTHPNP",
+			"type": "shell",
+			"command": "bash ./compile_vthpnp.sh",
+			"windows": {
+				"command": "wsl bash -lc 'bash ./compile_vthpnp.sh'"
+			},
+			"options": {
+				"cwd": "${workspaceRoot}/firmware/config/boards/vthpnp"
+			},
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
 			"label": "Build Firmware (Proteus F7)",
 			"type": "shell",
 			"command": "make -j16 PROJECT_BOARD=proteus PROJECT_CPU=ARCH_STM32F7",
