@@ -24,9 +24,9 @@ jobs:
       matrix:
         include:
           # Board configurations
-          - build-target: hellen72
-            folder: config/boards/hellen/hellen72
-            ini-file: fome_hellen72.ini
+          #- build-target: hellen72
+          # folder: config/boards/hellen/hellen72
+          # ini-file: fome_hellen72.ini
 
           # - build-target: hellen81
           #   folder: config/boards/hellen/hellen81
@@ -234,10 +234,3 @@ jobs:
       with:
         name: ${{matrix.ini-file}}
         path: ./firmware/tunerstudio/generated/${{matrix.ini-file}}
-
-    - name: Upload bundle
-      if: ${{ env.full == 'true' && env.upload == 'true' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: fome_bundle_${{matrix.build-target}}.zip
-        path: ./artifacts/fome_bundle_${{matrix.build-target}}.zip

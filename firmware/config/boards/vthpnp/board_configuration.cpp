@@ -52,7 +52,7 @@ void setBoardConfigOverrides() {
 	engineConfiguration->etbIo[0].controlPin = Gpio::C8; // etb pwm
 	engineConfiguration->etbIo[0].directionPin1 = Gpio::A9; // ebt dir
 	engineConfiguration->etbIo[0].disablePin = Gpio::A8; // etb dis
-	engineConfiguration->vrThreshold[0].pin = Gpio::E6;
+	config->vrThreshold[0].pin = Gpio::E6;
 	// engineConfiguration->vrThreshold[1].pin = Gpio::Unassigned;
 
 	engineConfiguration->vvtPins[0] = Gpio::Unassigned;
@@ -75,8 +75,8 @@ void setBoardConfigOverrides() {
 	// engineConfiguration->accelerometerSpiDevice = SPI_DEVICE_1;
 	// engineConfiguration->accelerometerCsPin = Gpio::B7;
 
-	engineConfiguration->binarySerialRxPin = Gpio::D6;
-	engineConfiguration->binarySerialTxPin = Gpio::D5;
+	//engineConfiguration->binarySerialRxPin = Gpio::D6;
+	//engineConfiguration->binarySerialTxPin = Gpio::D5;
 	// engineConfiguration->tunerStudioSerialSpeed = 115200;
 
 

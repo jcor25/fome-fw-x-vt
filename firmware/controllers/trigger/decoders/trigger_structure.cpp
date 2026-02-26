@@ -622,6 +622,10 @@ void TriggerWaveform::initializeTriggerWaveform(
 			configureHondaK_12_1(this);
 			break;
 
+		case trigger_type_e::TT_HONDA_J_CAM_6_2:
+			configureHondaJ_6_2(this);
+			break;
+
 		case trigger_type_e::TT_SUBARU_EZ30:
 			initializeSubaruEZ30(this);
 			break;
