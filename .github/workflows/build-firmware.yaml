@@ -234,3 +234,10 @@ jobs:
       with:
         name: ${{matrix.ini-file}}
         path: ./firmware/tunerstudio/generated/${{matrix.ini-file}}
+
+    - name: Upload bundle
+      #if: ${{ env.full == 'true' && env.upload == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: fome_bundle_${{matrix.build-target}}.zip
+        path: ./artifacts/fome_bundle_${{matrix.build-target}}.zip
