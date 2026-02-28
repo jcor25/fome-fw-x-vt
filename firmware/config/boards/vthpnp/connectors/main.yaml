@@ -177,3 +177,4 @@ pins:
   - id: EFI_ADC_8
     class: analog_inputs
     ts_name: D18 - AIN11
+    

@@ -36,7 +36,7 @@ static void setupDefaultSensorInputs() {
 
 	engineConfiguration->tps1_1AdcChannel = EFI_ADC_4;
 
-    	engineConfiguration->map.sensor.hwChannel = EFI_ADC_2;
+    engineConfiguration->map.sensor.hwChannel = EFI_ADC_2;
 
 	engineConfiguration->afr.hwChannel = EFI_ADC_0;
 
@@ -48,21 +48,18 @@ static void setupDefaultSensorInputs() {
 
 void setBoardConfigOverrides() {
 
-	
-	engineConfiguration->etbIo[0].controlPin = Gpio::C8; // etb pwm
-	engineConfiguration->etbIo[0].directionPin1 = Gpio::A9; // ebt dir
-	engineConfiguration->etbIo[0].disablePin = Gpio::A8; // etb dis
+	engineConfiguration->etbIo[0].controlPin = Gpio::C8;	// etb pwm
+	engineConfiguration->etbIo[0].directionPin1 = Gpio::A9;	// ebt dir
+	engineConfiguration->etbIo[0].disablePin = Gpio::A8;	// etb dis
 	config->vrThreshold[0].pin = Gpio::E6;
 	// engineConfiguration->vrThreshold[1].pin = Gpio::Unassigned;
 
 	engineConfiguration->vvtPins[0] = Gpio::Unassigned;
 	engineConfiguration->vvtPins[1] = Gpio::Unassigned;
 
-
-        //setHellenEnPin(Gpio::H144_GP_IO7);
-
-
+	//setHellenEnPin(Gpio::H144_GP_IO7);
 	// hellenMegaSdWithAccelerometer();
+
 	engineConfiguration->spi1mosiPin = Gpio::B5;
 	engineConfiguration->spi1misoPin = Gpio::B4;
 	engineConfiguration->spi1sckPin = Gpio::B3;
@@ -72,22 +69,19 @@ void setBoardConfigOverrides() {
 	engineConfiguration->sdCardSpiDevice = SPI_DEVICE_1;
 	engineConfiguration->sdCardCsPin = Gpio::B6;
 
-	// engineConfiguration->accelerometerSpiDevice = SPI_DEVICE_1;
-	// engineConfiguration->accelerometerCsPin = Gpio::B7;
-
+	//engineConfiguration->accelerometerSpiDevice = SPI_DEVICE_1;
+	//engineConfiguration->accelerometerCsPin = Gpio::B7;
 	//engineConfiguration->binarySerialRxPin = Gpio::D6;
 	//engineConfiguration->binarySerialTxPin = Gpio::D5;
-	// engineConfiguration->tunerStudioSerialSpeed = 115200;
-
-
+	//engineConfiguration->tunerStudioSerialSpeed = 115200;
 }
 
 
 void setBoardDefaultConfiguration() {
-	
+
 	engineConfiguration->analogInputDividerCoefficient = 2.0f;
 	
-	engineConfiguration->vbattDividerCoeff = (33 + 6.8) / 6.8; // 5.835
+	engineConfiguration->vbattDividerCoeff = (33 + 6.8) / 6.8;	//5.835
 
 	engineConfiguration->vbattAdcChannel = EFI_ADC_5;
 
@@ -97,17 +91,14 @@ void setBoardDefaultConfiguration() {
 	setIgnitionPins();
 	// setupDefaultSensorInputs()
 	// setBoardConfigOverrides()
-
 	
-	engineConfiguration->lps25BaroSensorScl = Gpio::B10; // sethellenmmbaro
+	engineConfiguration->lps25BaroSensorScl = Gpio::B10;	//sethellenmmbaro
 	engineConfiguration->lps25BaroSensorSda = Gpio::B11;
-    	
-	
+
 	engineConfiguration->enableSoftwareKnock = true;
 
-//    	engineConfiguration->boardUseTempPullUp = true;
+	//engineConfiguration->boardUseTempPullUp = true;
 
-	//setHellenCan();
 	engineConfiguration->canTxPin = Gpio::D1;
 	engineConfiguration->canRxPin = Gpio::D0;
 
@@ -120,13 +111,13 @@ void setBoardDefaultConfiguration() {
 	engineConfiguration->fuelPumpPin = Gpio::G2;
 	engineConfiguration->fanPin = Gpio::G4;
 	engineConfiguration->enableFan1WithAc = true;
-        engineConfiguration->boostControlPin = Gpio::C7;	
+    engineConfiguration->boostControlPin = Gpio::C7;	
 	engineConfiguration->idle.solenoidPin = Gpio::C6;
-	// engineConfiguration->tachOutputPin = Gpio::B8;
-	// engineConfiguration->alternatorControlPin = Gpio::G6;
+	//engineConfiguration->tachOutputPin = Gpio::B8;
+	//engineConfiguration->alternatorControlPin = Gpio::G6;
 	engineConfiguration->malfunctionIndicatorPin = Gpio::G3;
 
-	// "required" hardware is done - set some reasonable defaults
+	//"required" hardware is done - set some reasonable defaults
 	setupDefaultSensorInputs();
 
 	engineConfiguration->cylindersCount = 4;
@@ -137,6 +128,4 @@ void setBoardDefaultConfiguration() {
 	engineConfiguration->ignitionMode = IM_ONE_COIL;
 
 	setAlgorithm(LM_SPEED_DENSITY);	
-
-
 }
