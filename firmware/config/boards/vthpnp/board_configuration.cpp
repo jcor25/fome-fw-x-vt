@@ -50,7 +50,7 @@ static void setupDefaultSensorInputs() {
 void setBoardConfigOverrides() {
 
 	engineConfiguration->etbIo[0].controlPin = Gpio::C8;	// etb pwm
-	engineConfiguration->etbIo[0].directionPin1 = Gpio::A9;	// ebt dir
+	engineConfiguration->etbIo[0].directionPin1 = Gpio::A9; // ebt dir
 	engineConfiguration->etbIo[0].disablePin = Gpio::A8;	// etb dis
 	config->vrThreshold[0].pin = Gpio::E6;
 	// engineConfiguration->vrThreshold[1].pin = Gpio::Unassigned;
@@ -81,7 +81,7 @@ void setBoardDefaultConfiguration() {
 
 	engineConfiguration->analogInputDividerCoefficient = 2.0f;
 
-	engineConfiguration->vbattDividerCoeff = (33 + 6.8) / 6.8;	// 5.835
+	engineConfiguration->vbattDividerCoeff = (33 + 6.8) / 6.8; // 5.835
 
 	engineConfiguration->vbattAdcChannel = EFI_ADC_5;
 
@@ -92,7 +92,7 @@ void setBoardDefaultConfiguration() {
 	// setupDefaultSensorInputs()
 	// setBoardConfigOverrides()
 
-	engineConfiguration->lps25BaroSensorScl = Gpio::B10;	// sethellenmmbaro
+	engineConfiguration->lps25BaroSensorScl = Gpio::B10; // sethellenmmbaro
 	engineConfiguration->lps25BaroSensorSda = Gpio::B11;
 
 	engineConfiguration->enableSoftwareKnock = true;
