@@ -15,5 +15,3 @@ void configureHondaCbr600(TriggerWaveform* s);
 
 void configureHondaK_12_1(TriggerWaveform* s);
 void configureHondaK_4_1(TriggerWaveform* s);
-
-void configureHondaJ_6_2(TriggerWaveform* s);
