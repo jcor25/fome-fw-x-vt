@@ -121,7 +121,6 @@ void configureHondaJ_6_2(TriggerWaveform* s) {
 	s->setTriggerSynchronizationGap3(/*gapIndex*/ 0, 2.25, 3.75); // nominal 3
 	s->setTriggerSynchronizationGap3(/*gapIndex*/ 1, 0.1, 0.5);	  // nominal 0.33
 
-
 	s->addEvent360(160, true, TriggerWheel::T_PRIMARY);
 	s->addEvent360(180, false, TriggerWheel::T_PRIMARY);
 
