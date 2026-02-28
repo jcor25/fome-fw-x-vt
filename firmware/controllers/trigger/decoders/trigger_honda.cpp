@@ -119,7 +119,7 @@ void configureHondaJ_6_2(TriggerWaveform* s) {
 	s->initialize(FOUR_STROKE_CAM_SENSOR, SyncEdge::RiseOnly);
 
 	s->setTriggerSynchronizationGap3(/*gapIndex*/ 0, 2.25, 3.75); // nominal 3
-	s->setTriggerSynchronizationGap3(/*gapIndex*/ 1, 0.1, 0.5); // nominal 0.33
+	s->setTriggerSynchronizationGap3(/*gapIndex*/ 1, 0.1, 0.5);	  // nominal 0.33
 
 
 	s->addEvent360(160, true, TriggerWheel::T_PRIMARY);
@@ -133,5 +133,4 @@ void configureHondaJ_6_2(TriggerWaveform* s) {
 
 	s->addEvent360(340, true, TriggerWheel::T_PRIMARY);
 	s->addEvent360(360, false, TriggerWheel::T_PRIMARY);
-
 }
