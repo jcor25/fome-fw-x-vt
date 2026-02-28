@@ -470,7 +470,7 @@ enum class trigger_type_e : uint32_t {
 
 	TT_VVT_MIATA_NA = 76,
 
-	TT_HONDA_J_CAM_6_2 = 77, 
+	TT_HONDA_J_CAM_6_2 = 77,
 
 	// do not forget to edit "#define trigger_type_e_enum" line in integration/fome_config.txt file to propogate new
 	// value to rusefi.ini TS project do not forget to invoke "gen_config.bat" once you make changes to
