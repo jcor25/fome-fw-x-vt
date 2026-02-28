@@ -66,7 +66,7 @@ void setBoardConfigOverrides() {
 	engineConfiguration->spi1sckPin = Gpio::B3;
 	engineConfiguration->is_enabled_spi_1 = true;
 	engineConfiguration->isSdCardEnabled = true;
-	
+
 	engineConfiguration->sdCardSpiDevice = SPI_DEVICE_1;
 	engineConfiguration->sdCardCsPin = Gpio::B6;
 
@@ -77,11 +77,10 @@ void setBoardConfigOverrides() {
 	// engineConfiguration->tunerStudioSerialSpeed = 115200;
 }
 
-
 void setBoardDefaultConfiguration() {
 
 	engineConfiguration->analogInputDividerCoefficient = 2.0f;
-	
+
 	engineConfiguration->vbattDividerCoeff = (33 + 6.8) / 6.8;	// 5.835
 
 	engineConfiguration->vbattAdcChannel = EFI_ADC_5;
@@ -92,8 +91,8 @@ void setBoardDefaultConfiguration() {
 	setIgnitionPins();
 	// setupDefaultSensorInputs()
 	// setBoardConfigOverrides()
-	
-	engineConfiguration->lps25BaroSensorScl = Gpio::B10;	//sethellenmmbaro
+
+	engineConfiguration->lps25BaroSensorScl = Gpio::B10;	// sethellenmmbaro
 	engineConfiguration->lps25BaroSensorSda = Gpio::B11;
 
 	engineConfiguration->enableSoftwareKnock = true;
