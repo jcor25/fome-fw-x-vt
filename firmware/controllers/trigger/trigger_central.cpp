@@ -179,6 +179,7 @@ static angle_t adjustCrankPhase(int camIndex) {
 			return tc->syncAndReport(crankDivider, 0);
 		case VVT_HONDA_K_INTAKE:
 		case VVT_INACTIVE:
+		case VVT_HONDA_J_6_2:
 			// do nothing
 			return 0;
 	}
