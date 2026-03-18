@@ -727,7 +727,7 @@ void TriggerWaveform::initializeTriggerWaveform(
 		case trigger_type_e::TT_SUBARU_SVX_CAM_VVT:
 			initializeSubaru_SVX(this);
 			break;
-			
+
 		case trigger_type_e::TT_HONDA_J_CAM_6_2:
 			initializeSkippedToothTrigger(this, 6, 2, triggerOperationMode, SyncEdge::RiseOnly);
 			setTriggerSynchronizationGap3(/*gapIndex*/ 0, /*from*/ 2.40, 3.60);
