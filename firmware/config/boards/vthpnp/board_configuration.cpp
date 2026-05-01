@@ -82,31 +82,21 @@ void setBoardConfigOverrides() {
 	engineConfiguration->vvtPins[0] = Gpio::Unassigned;
 	engineConfiguration->vvtPins[1] = Gpio::Unassigned;
 
-	// setHellenEnPin(Gpio::H144_GP_IO7);
-	// hellenMegaSdWithAccelerometer();
-
-	// disable sd spi
-	// engineConfiguration->spi1mosiPin = Gpio::B5;
-	// engineConfiguration->spi1misoPin = Gpio::B4;
-	// engineConfiguration->spi1sckPin = Gpio::B3;
-	// engineConfiguration->is_enabled_spi_1 = true;
-	// engineConfiguration->isSdCardEnabled = true;
+	// SD SPI
+	engineConfiguration->is_enabled_spi_1 = true;
+	engineConfiguration->spi1mosiPin = Gpio::B5;
+	engineConfiguration->spi1misoPin = Gpio::B4;
+	engineConfiguration->spi1sckPin = Gpio::B3;
+	engineConfiguration->isSdCardEnabled = true;
+	engineConfiguration->sdCardCsPin = Gpio::B6; // B6
+	engineConfiguration->sdCardSpiDevice = SPI_DEVICE_1;
 
 	// WiFi SPI
 	engineConfiguration->is_enabled_spi_2 = true;
-	engineConfiguration->spi4sckPin = Gpio::B13;
-	engineConfiguration->spi4misoPin = Gpio::B14;
-	engineConfiguration->spi4mosiPin = Gpio::B15;
+	engineConfiguration->spi2sckPin = Gpio::B13;
+	engineConfiguration->spi2misoPin = Gpio::B14;
+	engineConfiguration->spi2mosiPin = Gpio::B15;
 
-	// Force disable SPI SD
-	engineConfiguration->sdCardCsPin = Gpio::Unassigned; // B6
-	engineConfiguration->sdCardSpiDevice = SPI_NONE;
-
-	// engineConfiguration->accelerometerSpiDevice = SPI_DEVICE_1;
-	// engineConfiguration->accelerometerCsPin = Gpio::B7;
-	// engineConfiguration->binarySerialRxPin = Gpio::D6;
-	// engineConfiguration->binarySerialTxPin = Gpio::D5;
-	// engineConfiguration->tunerStudioSerialSpeed = 115200;
 }
 
 #if EFI_BOOTLOADER
@@ -175,13 +165,4 @@ void setBoardDefaultConfiguration() {
 	engineConfiguration->ignitionMode = IM_ONE_COIL;
 
 	setAlgorithm(LM_SPEED_DENSITY);
-}
-
-void preHalInit() {
-	efiSetPadMode("SDMMC", Gpio::B7, PAL_MODE_ALTERNATE(12) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_PULLUP);
-	efiSetPadMode("SDMMC", Gpio::B6, PAL_MODE_ALTERNATE(12) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_PULLUP);
-	efiSetPadMode("SDMMC", Gpio::B3, PAL_MODE_ALTERNATE(12) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_PULLUP);
-	efiSetPadMode("SDMMC", Gpio::B4, PAL_MODE_ALTERNATE(12) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_PULLUP);
-	efiSetPadMode("SDMMC", Gpio::B5, PAL_MODE_ALTERNATE(12) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_PULLUP);
-	efiSetPadMode("SDMMC", Gpio::G15, PAL_MODE_ALTERNATE(12) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_PULLUP);
 }

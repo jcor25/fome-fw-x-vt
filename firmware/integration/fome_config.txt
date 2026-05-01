@@ -785,6 +785,7 @@ output_pin_e acFanPin;Optional Radiator Fan used with A/C
 
 	bit clutchUpPinInverted
 	bit clutchDownPinInverted
+	bit brakePedalPinInverted
 	bit useHbridgesToDriveIdleStepper;If enabled we use two H-bridges to drive stepper idle air valve
 	bit multisparkEnable
 	bit enableLaunchRetard
