@@ -172,7 +172,7 @@ ifeq ($(SD_BOOTLOADER),yes)
   ALLCSRC += $(PROJECT_DIR)/ext/openblt/Target/Source/file.c
 endif
 
-ifeq ($(USE_WIFI),yes)
+ifeq ($(WIFI_BOOTLOADER),yes)
   include $(PROJECT_DIR)/ext/atwinc1500/atwinc1500.mk
   include $(PROJECT_DIR)/net/net.mk
 

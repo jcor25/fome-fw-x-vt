@@ -21,13 +21,19 @@ DDEFS += -DSTM32_LSE_BYPASS
 USE_WIFI = yes
 
 # Enable the SD card bootloader
-SD_BOOTLOADER = yes
+SD_BOOTLOADER = no
+
+# WiFi bootloader OTA doesn't fit in the 32KB F4 bootloader region
+WIFI_BOOTLOADER = no
 
 DDEFS += -DSTATIC_BOARD_ID=STATIC_BOARD_ID_VTHPNP
 
 SHORT_BOARD_NAME = vthpnp
 
 IS_STM32F429 = yes
+
+# WiFi consumes extra SRAM vs proteus-base, so reduce Lua heap to fit in 192KB
+DDEFS += -DLUA_USER_HEAP=45000
 
 
 
