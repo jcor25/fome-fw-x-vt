@@ -148,6 +148,10 @@ jobs:
           #   folder: config/boards/tdg-pdm8
           #   ini-file: fome_tdg-pdm8.ini
 
+          - build-target: vthpnp
+            folder: config/boards/vthpnp
+            ini-file: fome_vthpnp.ini
+
     steps:
     - name: Check branch name
       if: ${{ contains(github.ref_name, '.') }}
@@ -170,18 +174,18 @@ jobs:
       with:
         submodules: true
 
-    # - uses: actions/setup-java@v4
-    #   with:
-    #     distribution: 'zulu'
-    #     java-version: '8'
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '21'
 
-    # - name: Install multilib, mingw, sshpass and mtools
-    #   working-directory: ./.github/workflows/
-    #   run: |
-    #     sudo ./add-ubuntu-latest-apt-mirrors.sh
-    #     sudo apt-get install gcc-multilib g++-multilib g++-mingw-w64 gcc-mingw-w64 sshpass mtools
-    #     sudo apt-get install zip
-    #     sudo apt-get install dosfstools
+    - name: Install multilib, mingw, sshpass and mtools
+      working-directory: ./.github/workflows/
+      run: |
+         sudo ./add-ubuntu-latest-apt-mirrors.sh
+         sudo apt-get install gcc-multilib g++-multilib g++-mingw-w64 gcc-mingw-w64 sshpass mtools
+         sudo apt-get install zip
+         sudo apt-get install dosfstools
 
     # Build the firmware!
     - name: Build Firmware
