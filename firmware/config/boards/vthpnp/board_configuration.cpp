@@ -19,15 +19,15 @@ spi_device_e getWifiSpiDevice() {
 }
 
 Gpio getWifiCsPin() {
-	return Gpio::E4;
+	return Gpio::B12;
 }
 
 Gpio getWifiResetPin() {
-	return Gpio::C13;
+	return Gpio::D8;
 }
 
 Gpio getWifiIsrPin() {
-	return Gpio::E3;
+	return Gpio::D9;
 }
 
 static void setInjectorPins() {

@@ -28,7 +28,7 @@ SHORT_BOARD_NAME = vthpnp
 IS_STM32F429 = yes
 
 # WiFi consumes extra SRAM vs proteus-base, so reduce Lua heap to fit in 192KB
-DDEFS += -DLUA_USER_HEAP=45000
+DDEFS += -DLUA_USER_HEAP=50000
 
 
 
