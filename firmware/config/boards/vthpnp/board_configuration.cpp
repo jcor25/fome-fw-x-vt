@@ -66,7 +66,7 @@ static void setupDefaultSensorInputs() {
 }
 
 void boardInitHardware() {
-	
+
 	En5V.initPin("5V-EN", Gpio::F15);
 	En5V.setValue(1);
 }
@@ -92,7 +92,7 @@ void setBoardConfigOverrides() {
 	engineConfiguration->isSdCardEnabled = true;
 
 	// WiFi SPI
-	engineConfiguration->is_enabled_spi_2= true;
+	engineConfiguration->is_enabled_spi_2 = true;
 	engineConfiguration->spi4sckPin = Gpio::B13;
 	engineConfiguration->spi4misoPin = Gpio::B14;
 	engineConfiguration->spi4mosiPin = Gpio::B15;
