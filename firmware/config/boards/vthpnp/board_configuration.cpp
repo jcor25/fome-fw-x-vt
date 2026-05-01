@@ -85,11 +85,12 @@ void setBoardConfigOverrides() {
 	// setHellenEnPin(Gpio::H144_GP_IO7);
 	// hellenMegaSdWithAccelerometer();
 
-	engineConfiguration->spi1mosiPin = Gpio::B5;
-	engineConfiguration->spi1misoPin = Gpio::B4;
-	engineConfiguration->spi1sckPin = Gpio::B3;
-	engineConfiguration->is_enabled_spi_1 = true;
-	engineConfiguration->isSdCardEnabled = true;
+	// disable sd spi
+	// engineConfiguration->spi1mosiPin = Gpio::B5;
+	// engineConfiguration->spi1misoPin = Gpio::B4;
+	// engineConfiguration->spi1sckPin = Gpio::B3;
+	// engineConfiguration->is_enabled_spi_1 = true;
+	// engineConfiguration->isSdCardEnabled = true;
 
 	// WiFi SPI
 	engineConfiguration->is_enabled_spi_2 = true;
@@ -97,8 +98,9 @@ void setBoardConfigOverrides() {
 	engineConfiguration->spi4misoPin = Gpio::B14;
 	engineConfiguration->spi4mosiPin = Gpio::B15;
 
-	engineConfiguration->sdCardSpiDevice = SPI_DEVICE_1;
-	engineConfiguration->sdCardCsPin = Gpio::B6;
+	// Force disable SPI SD
+	engineConfiguration->sdCardCsPin = Gpio::Unassigned; // B6
+	engineConfiguration->sdCardSpiDevice = SPI_NONE;
 
 	// engineConfiguration->accelerometerSpiDevice = SPI_DEVICE_1;
 	// engineConfiguration->accelerometerCsPin = Gpio::B7;
