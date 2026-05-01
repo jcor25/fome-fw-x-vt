@@ -197,18 +197,18 @@ jobs:
 
     # Build rusEFI console
     - name: Build console
-      if: ${{ env.full == 'true' }}
+      # if: ${{ env.full == 'true' }}
       run: bash misc/jenkins/build_java_console.sh
 
     # Build the simulator
     - name: Build simulator
-      if: ${{ env.full == 'true' }}
+      # if: ${{ env.full == 'true' }}
       working-directory: ./simulator/
       # 'OS="Windows_NT"' allows us to build Windows executable on unix
       run: OS="Windows_NT" make -j20 PROJECT_BOARD=${{matrix.build-target}} BOARD_DIR=../firmware/${{matrix.folder}} 
 
     - name: Package Bundle
-      if: ${{ env.full == 'true' }}
+      # if: ${{ env.full == 'true' }}
       run: bash misc/jenkins/compile_other_versions/prepare_bundle.sh ${{matrix.build-target}} "${{matrix.ini-file}}" ${{ toJSON(inputs.build_name) }}
 
     - name: Upload INI to tunes.fome.tech
@@ -236,7 +236,7 @@ jobs:
         path: ./firmware/tunerstudio/generated/${{matrix.ini-file}}
 
     - name: Upload bundle
-      if: ${{ env.full == 'true' && env.upload == 'true' }}
+      # if: ${{ env.full == 'true' && env.upload == 'true' }}
       uses: actions/upload-artifact@v7
       with:
         name: fome_bundle_${{matrix.build-target}}.zip
