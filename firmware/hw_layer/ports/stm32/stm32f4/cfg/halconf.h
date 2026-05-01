@@ -146,7 +146,7 @@
  *          at @p FALSE.
  */
 #if !defined(SDC_MMC_SUPPORT) || defined(__DOXYGEN__)
-#define SDC_MMC_SUPPORT             TRUE
+#define SDC_MMC_SUPPORT             FALSE
 #endif
 
 /**
