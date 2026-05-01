@@ -244,3 +244,8 @@
 #ifndef EFI_STORAGE_EXT_SNOR
 #define EFI_STORAGE_EXT_SNOR FALSE
 #endif
+
+/**
+ * SDIO device for F4 MCUs
+ */
+#define EFI_SDC_DEVICE SDCD1
