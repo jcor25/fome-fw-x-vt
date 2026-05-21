@@ -169,6 +169,10 @@
 #define EFI_USB_SERIAL TRUE
 #endif
 
+#ifndef EFI_USB_SERIAL_DIRECT
+#define EFI_USB_SERIAL_DIRECT TRUE
+#endif
+
 #define EFI_CONSOLE_USB_DEVICE SDU1
 
 #if defined(EFI_HAS_EXT_SDRAM)
@@ -232,8 +236,6 @@
  * Patched version of ChibiOS/RT support extra details in the system error messages
  */
 #define EFI_CUSTOM_PANIC_METHOD TRUE
-
-#define ADC_CHANNEL_VREF ADC_CHANNEL_IN14
 
 #ifndef LED_CRITICAL_ERROR_BRAIN_PIN
 #define LED_CRITICAL_ERROR_BRAIN_PIN Gpio::D14
