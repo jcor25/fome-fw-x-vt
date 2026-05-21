@@ -3,6 +3,7 @@
 #if EFI_PROD_CODE
 
 #include "dma_buffers.h"
+#include <array>
 #include "big_buffer.h"
 
 #if EFI_FILE_LOGGING
@@ -36,6 +37,10 @@ struct DmaBufferContents {
 	FATFS fs;
 	FIL file;
 	SdLogBufferWriter logBuffer;
+#endif
+
+#if EFI_WIFI
+	std::array<uint8_t, 512> wifiUpdateBuffer;
 #endif
 
 #if HAL_USE_USB_MSD
@@ -91,6 +96,12 @@ SdLogBufferWriter& logBuffer() {
 	return dmaBufferRegion.contents.logBuffer;
 }
 #endif // EFI_FILE_LOGGING
+
+#if EFI_WIFI
+std::array<uint8_t, 512>& wifiUpdateBuffer() {
+	return dmaBufferRegion.contents.wifiUpdateBuffer;
+}
+#endif // EFI_WIFI
 
 } // namespace dma_buffers
 

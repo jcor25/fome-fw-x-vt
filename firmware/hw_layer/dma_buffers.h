@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 #if EFI_PROD_CODE
@@ -28,6 +29,10 @@ FATFS* fs();
 FIL* logFileFd();
 SdLogBufferWriter& logBuffer();
 #endif // EFI_FILE_LOGGING
+
+#if EFI_WIFI
+std::array<uint8_t, 512>& wifiUpdateBuffer();
+#endif // EFI_WIFI
 
 } // namespace dma_buffers
 
