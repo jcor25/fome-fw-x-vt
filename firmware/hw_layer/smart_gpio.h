@@ -15,6 +15,14 @@
 #include "drivers/gpio/drv8860.h"
 #endif /* EFI_PROD_CODE */
 
+#ifndef BOARD_DRV8860_COUNT
+#define BOARD_DRV8860_COUNT 0
+#endif
+
+#ifndef BOARD_MC33810_COUNT
+#define BOARD_MC33810_COUNT 0
+#endif
+
 #if EFI_UNIT_TEST
 #define BOARD_EXT_GPIOCHIPS 3
 #else
