@@ -222,7 +222,6 @@ void applyNewHardwareSettings() {
 
 // Weak link a stub so that every board doesn't have to implement this function
 __attribute__((weak)) void boardInitHardware() {}
-__attribute__((weak)) void setPinConfigurationOverrides() {}
 
 // This function initializes hardware that can do so before configuration is loaded
 void initHardwareNoConfig() {
@@ -324,7 +323,7 @@ void initHardware() {
 #endif /* EFI_MC33816 */
 
 #if EFI_MAX_31855
-	initMax31855(engineConfiguration->max31855spiDevice, engineConfiguration->max31855_cs);
+	initMax31855();
 #endif /* EFI_MAX_31855 */
 
 #if EFI_CAN_SUPPORT
