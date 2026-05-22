@@ -96,7 +96,6 @@ void setBoardConfigOverrides() {
 	engineConfiguration->spi2sckPin = Gpio::B13;
 	engineConfiguration->spi2misoPin = Gpio::B14;
 	engineConfiguration->spi2mosiPin = Gpio::B15;
-
 }
 
 #if EFI_BOOTLOADER
