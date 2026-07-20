@@ -102,6 +102,12 @@ typedef enum __attribute__((__packed__)) {
 
 	VVT_MAZDA_L = 19,
 
+	/**
+	 * Honda J-series (V6) intake cam: 6 tooth slots, 2 missing, giving one distinct ~3x gap per 720 degree cam
+	 * revolution.
+	 */
+	VVT_HONDA_J_6_2 = 20,
+
 } vvt_mode_e;
 
 /**

@@ -630,6 +630,12 @@ void TriggerWaveform::initializeTriggerWaveform(
 			configureHondaK_12_1(this);
 			break;
 
+		case trigger_type_e::TT_HONDA_J_CAM_6_2:
+			initializeSkippedToothTrigger(this, 6, 2, triggerOperationMode, SyncEdge::RiseOnly);
+			setTriggerSynchronizationGap3(/*gapIndex*/ 0, /*from*/ 2.40, 3.60);
+			setTriggerSynchronizationGap3(/*gapIndex*/ 1, /*from*/ 0.75, 1.25);
+			break;
+
 		case trigger_type_e::TT_SUBARU_EZ30:
 			initializeSubaruEZ30(this);
 			break;
