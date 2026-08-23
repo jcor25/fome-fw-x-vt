@@ -33,6 +33,9 @@ or
 ### Added
  - Add mode for "true" wasted spark on odd fire engines (Viper V10) where companion cylinders are not exactly 360 degrees apart. Requires cam sync.
 
+### Fixed
+ - Honda J 6-2 cam trigger: widen sync gap tolerances so normal cranking RPM jitter no longer causes spurious VVT sync errors/resyncs.
+
 ## May 2026 Release
 
 ### Breaking Changes
