@@ -35,6 +35,7 @@ or
 
 ### Fixed
  - Honda J 6-2 cam trigger: widen sync gap tolerances so normal cranking RPM jitter no longer causes spurious VVT sync errors/resyncs.
+ - MAP cylinder balancing no longer corrupts the MAP reading above 255 kPa. Engines running more than ~22 psi of boost could see reported MAP jump anywhere between 60 and 440 kPa while actual manifold pressure was steady, throwing fuel and ignition off badly at high load.
 
 ## May 2026 Release
 
