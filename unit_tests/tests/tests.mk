@@ -18,6 +18,7 @@ TESTS_SRC_CPP = \
 	tests/trigger/test_real_nb2_cranking.cpp \
 	tests/trigger/test_real_gm_24x.cpp \
 	tests/trigger/test_real_k24a2.cpp \
+	tests/trigger/test_honda_k24z_cam.cpp \
 	tests/trigger/test_real_k20.cpp \
 	tests/trigger/test_toyota_3_tooth_cam.cpp \
 	tests/trigger/test_real_noisy_trigger.cpp \
@@ -47,6 +48,7 @@ TESTS_SRC_CPP = \
 	tests/lua/test_lua_hooks.cpp \
 	tests/lua/test_lua_Leiderman_Khlystov.cpp \
 	tests/lua/test_can_filter.cpp \
+	tests/util/test_biquad.cpp \
 	tests/util/test_scaled_channel.cpp \
 	tests/util/test_timer.cpp \
 	tests/system/test_periodic_thread_controller.cpp \
@@ -59,6 +61,11 @@ TESTS_SRC_CPP = \
 	tests/test_dwell_corner_case_issue_796.cpp \
 	tests/test_idle_controller.cpp \
 	tests/test_launch.cpp \
+	tests/test_torque_reduction_controller.cpp \
+	tests/test_driver_torque_demand.cpp \
+	tests/test_torque_model.cpp \
+	tests/test_traction_control.cpp \
+	tests/test_airmass_dispatcher.cpp \
 	tests/test_fuel_map.cpp \
 	tests/test_gear_detector.cpp \
 	tests/ignition_injection/test_fuel_wall_wetting.cpp \
@@ -101,6 +108,7 @@ TESTS_SRC_CPP = \
 	tests/sensor/test_frequency_sensor.cpp \
 	tests/sensor/test_turbocharger_speed_converter.cpp \
 	tests/sensor/test_vehicle_speed_converter.cpp \
+	tests/sensor/test_flex_sensor_converter.cpp \
 	tests/actuators/test_antilag.cpp \
 	tests/actuators/test_boost.cpp \
 	tests/actuators/test_dc_motor.cpp \

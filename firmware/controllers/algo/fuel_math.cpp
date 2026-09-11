@@ -73,8 +73,7 @@ float getCrankingFuel3(float baseFuel, uint32_t revolutionCounterSinceStart) {
 			alreadyWarned = true;
 		}
 
-		// If failed flex sensor, default to 50% E
-		auto flex = Sensor::get(SensorType::FuelEthanolPercent).value_or(50);
+		auto flex = getFlexEthanolPercent();
 
 		engine->engineState.crankingFuel.coolantTemperatureCoefficient =
 				interpolateClamped(0, e0Mult, 85, e85Mult, flex);
@@ -160,10 +159,6 @@ AirmassModelBase* getAirmassModel(engine_load_mode_e mode) {
 	}
 }
 
-float getMaxAirflowAtMap(float map) {
-	return sdAirmass.getAirflow(Sensor::getOrZero(SensorType::Rpm), map, false);
-}
-
 // Per-cylinder base fuel mass
 static float getBaseFuelMass(float rpm) {
 	ScopePerf perf(PE::GetBaseFuel);
@@ -182,7 +177,7 @@ static float getBaseFuelMass(float rpm) {
 	engine->engineState.ignitionLoad =
 			engine->fuelComputer.getLoadOverride(airmass.EngineLoadPercent, engineConfiguration->ignOverrideMode);
 
-	auto gramPerCycle = airmass.CylinderAirmass * engineConfiguration->cylindersCount;
+	auto gramPerCycle = airmass.CylinderAirmass * engine->engineState.cylinderCount;
 	auto gramPerMs = rpm == 0 ? 0 : gramPerCycle / getEngineCycleDuration(rpm);
 
 	// convert g/s -> kg/h
@@ -234,7 +229,7 @@ int getNumberOfInjections(injection_mode_e mode) {
 	switch (mode) {
 		case IM_SIMULTANEOUS:
 		case IM_SINGLE_POINT:
-			return engineConfiguration->cylindersCount;
+			return engine->engineState.cylinderCount;
 		case IM_BATCH:
 			return 2;
 		case IM_SEQUENTIAL:
@@ -248,7 +243,7 @@ int getNumberOfInjections(injection_mode_e mode) {
 float getInjectionModeDurationMultiplier(injection_mode_e mode) {
 	switch (mode) {
 		case IM_SIMULTANEOUS: {
-			auto cylCount = engineConfiguration->cylindersCount;
+			auto cylCount = engine->engineState.cylinderCount;
 
 			if (cylCount == 0) {
 				// we can end up here during configuration reset
@@ -418,7 +413,7 @@ float getCrankingFuel(float baseFuel) {
  */
 float getStandardAirCharge() {
 	float totalDisplacement = engineConfiguration->displacement;
-	float cylDisplacement = totalDisplacement / engineConfiguration->cylindersCount;
+	float cylDisplacement = totalDisplacement / engine->engineState.cylinderCount;
 
 	// Calculation of 100% VE air mass in g/cyl - 1 cylinder filling at 1.204/L
 	// 101.325kpa, 20C

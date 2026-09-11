@@ -122,7 +122,7 @@ static void printEngineSnifferPinMappings() {
 		extern const char* vvtNames[];
 		printOutPin(vvtNames[i], engineConfiguration->camInputs[i]);
 	}
-	int cylCount = minI(engineConfiguration->cylindersCount, MAX_CYLINDER_COUNT);
+	int cylCount = minI(engine->engineState.cylinderCount, MAX_CYLINDER_COUNT);
 	for (int i = 0; i < cylCount; i++) {
 		printOutPin(enginePins.coils[i].getShortName(), engineConfiguration->ignitionPins[i]);
 		printOutPin(enginePins.trailingCoils[i].getShortName(), engineConfiguration->trailingCoilPins[i]);
@@ -366,6 +366,9 @@ static void updatePressures() {
 
 static void updateMiscSensors() {
 	engine->outputChannels.VBatt = Sensor::getOrZero(SensorType::BatteryVoltage);
+	engine->outputChannels.mainRelayVoltage = Sensor::getOrZero(SensorType::MainRelayVoltage);
+	engine->outputChannels.sensorSupplyVoltage = Sensor::getOrZero(SensorType::Sensor5vVoltage);
+	engine->outputChannels.vboostVoltage = Sensor::getOrZero(SensorType::VboostVoltage);
 
 	engine->outputChannels.wastegatePositionSensor = Sensor::getOrZero(SensorType::WastegatePosition);
 
@@ -486,10 +489,10 @@ void updateTunerStudioState() {
 
 	tsOutputChannels->firmwareVersion = getRusEfiVersion();
 
-	tsOutputChannels->accelerationLat = engine->sensors.accelerometer.lat;
-	tsOutputChannels->accelerationLon = engine->sensors.accelerometer.lon;
-	tsOutputChannels->accelerationVert = engine->sensors.accelerometer.vert;
-	tsOutputChannels->gyroYaw = engine->sensors.accelerometer.yawRate;
+	tsOutputChannels->accelerationLat = Sensor::getOrZero(SensorType::AccelLat);
+	tsOutputChannels->accelerationLon = Sensor::getOrZero(SensorType::AccelLon);
+	tsOutputChannels->accelerationVert = Sensor::getOrZero(SensorType::AccelVert);
+	tsOutputChannels->gyroYaw = Sensor::getOrZero(SensorType::YawRate);
 
 	tsOutputChannels->turboSpeed = Sensor::getOrZero(SensorType::TurbochargerSpeed);
 	extern FrequencySensor vehicleSpeedSensor;
@@ -498,10 +501,9 @@ void updateTunerStudioState() {
 	tsOutputChannels->tpsAccelFuel = engine->engineState.tpsAccelEnrich;
 
 #if EFI_MAX_31855
-	for (int i = 0; i < EGT_CHANNEL_COUNT; i++) {
-		if (isBrainPinValid(engineConfiguration->max31855_cs[0])) {
-			tsOutputChannels->egt[i] = getMax31855EgtValue(i);
-		}
+	for (size_t i = 0; i < EGT_CHANNEL_COUNT; i++) {
+		tsOutputChannels->egt[i] =
+				Sensor::getOrZero(static_cast<SensorType>(static_cast<size_t>(SensorType::EGT1) + i));
 	}
 #endif /* EFI_MAX_31855 */
 

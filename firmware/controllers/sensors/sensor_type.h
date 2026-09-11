@@ -109,6 +109,20 @@ enum class SensorType : unsigned char {
 
 	DetectedGear,
 
+	AccelLat,
+	AccelLon,
+	AccelVert,
+	YawRate,
+
+	EGT1,
+	EGT2,
+	EGT3,
+	EGT4,
+	EGT5,
+	EGT6,
+	EGT7,
+	EGT8,
+
 	// analog voltage inputs for Lua
 	AuxAnalog1,
 	AuxAnalog2,

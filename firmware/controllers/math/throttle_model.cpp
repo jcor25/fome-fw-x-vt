@@ -2,7 +2,7 @@
 
 #include "throttle_model.h"
 
-#include "fuel_math.h"
+#include "speed_density_base.h"
 
 static const float pressureRatioCorrectionBins[] = {
 		0.53125, 0.546875, 0.5625,	0.578125, 0.59375, 0.609375, 0.625,	  0.640625, 0.65625, 0.671875,
@@ -90,20 +90,30 @@ float ThrottleModelBase::throttlePositionForFlow(float flow, float pressureRatio
 	return solver.solve(50, 0.1).value_or(0);
 }
 
-float ThrottleModelBase::estimateThrottleFlow(float tip, float tps, float map, float iat) {
+// Pressure ratio at which the throttle effectively stops being the flow restriction - matches the
+// clamp in pressureRatioFlowCorrection above. Beyond it the engine, not the throttle, limits flow.
+static constexpr float crossoverPr = 0.95f;
+
+float ThrottleModelBase::crossoverAngle(float tip, float iat) const {
 	// How much flow would the engine pull at 0.95 PR?
 	// The throttle won't flow much more than this in any scenario, even if the throttle could move more flow.
-	constexpr float crossoverPr = 0.95f;
 	float p95Flow = maxEngineFlow(tip * crossoverPr);
 
-	// What throttle position gives us that flow at 0.95 PR?
-	float throttleAngle95Pr = throttlePositionForFlow(p95Flow, crossoverPr, tip, iat);
+	// What throttle position gives us that flow at 0.95 PR? Above it the engine is the restriction.
+	return throttlePositionForFlow(p95Flow, crossoverPr, tip, iat);
+}
+
+float ThrottleModelBase::estimateThrottleFlow(float tip, float tps, float map, float iat) {
+	float throttleAngle95Pr = crossoverAngle(tip, iat);
 	m_crossoverAngle = throttleAngle95Pr;
 
 	bool useWotModel = tps > throttleAngle95Pr;
 	m_useWotModel = useWotModel;
 
 	if (useWotModel) {
+		// Engine flow at the crossover (0.95 PR) point - the throttle-flow-limited end of the blend.
+		float p95Flow = maxEngineFlow(tip * crossoverPr);
+
 		// Maximum flow if the throttle was removed
 		float maximumPossibleFlow = maxEngineFlow(tip);
 
@@ -145,5 +155,22 @@ float ThrottleModel::effectiveArea(float tps) const {
 }
 
 float ThrottleModel::maxEngineFlow(float map) const {
-	return getMaxAirflowAtMap(map);
+	float rpm = Sensor::getOrZero(SensorType::Rpm);
+
+	float tChargeK = engine->engineState.sd.tChargeK;
+	if (std::isnan(tChargeK)) {
+		// No charge temperature yet (e.g. before first CLT reading)
+		return 0;
+	}
+
+	// The throttle model only needs a ceiling on how much air the engine could pump
+	// if the throttle weren't restricting. Assume 100% VE rather than reading the VE
+	// table, which may be untuned (e.g. in MAF fuel mode) and isn't trustworthy here.
+	mass_t cycleAir = idealGasLaw(engineConfiguration->displacement, map, tChargeK);
+
+	// 4-stroke engines only induct on half of crank revolutions
+	float massPerCycle = engineConfiguration->twoStroke ? cycleAir : cycleAir / 2;
+
+	// g/cycle -> g/s
+	return massPerCycle * rpm / 60;
 }

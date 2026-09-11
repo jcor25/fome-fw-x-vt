@@ -9,6 +9,7 @@
 #include "log_field.h"
 #include "buffered_writer.h"
 #include "tunerstudio.h"
+#include "live_data.h"
 
 #if EFI_FILE_LOGGING
 
@@ -54,6 +55,22 @@ void writeSdLogLine(Writer& bufferedWriter) {
 
 static constexpr uint16_t recordLength = computeFieldsRecordLength();
 
+static constexpr size_t headerSize = MLQ_HEADER_SIZE + efi::size(fields) * MLQ_FIELD_HEADER_SIZE;
+
+// The MLQ "data begin index" field written below is only 16 bits wide in practice (see
+// writeFileHeader), so a header any larger than this silently produces log files that no viewer
+// can read. Every output channel is logged, so the field count - and this header - grows with
+// every channel added.
+static_assert(headerSize <= 0xFFFF, "SD log file header no longer fits in the 16 bit data begin index");
+
+size_t getSdLogFieldCount() {
+	return efi::size(fields);
+}
+
+uint16_t getSdLogRecordLength() {
+	return recordLength;
+}
+
 void writeFileHeader(Writer& outBuffer) {
 	char buffer[MLQ_HEADER_SIZE];
 	// File format: MLVLG\0
@@ -74,8 +91,6 @@ void writeFileHeader(Writer& outBuffer) {
 	buffer[13] = 0;
 	buffer[14] = 0;
 	buffer[15] = 0;
-
-	size_t headerSize = MLQ_HEADER_SIZE + efi::size(fields) * MLQ_FIELD_HEADER_SIZE;
 
 	// Data begin index: begins immediately after the header
 	buffer[16] = 0;
@@ -123,9 +138,14 @@ void writeSdBlock(Writer& outBuffer) {
 	// Sigh.
 	*reinterpret_cast<uint32_t*>(&packedTime) = nowNt / TicksPerCount;
 
+	// Snapshot the entire output channel space once, exactly like the main TunerStudio log does.
+	// Offset-based fields read from this buffer; the timestamp field reads from its own address.
+	static uint8_t channels[TS_TOTAL_OUTPUT_SIZE];
+	copyRange(channels, getLiveDataFragments(), 0, TS_TOTAL_OUTPUT_SIZE);
+
 	uint8_t sum = 0;
 	for (size_t fieldIndex = 0; fieldIndex < efi::size(fields); fieldIndex++) {
-		size_t entrySize = fields[fieldIndex].writeData(buffer);
+		size_t entrySize = fields[fieldIndex].writeData(buffer, channels);
 
 		for (size_t byteIndex = 0; byteIndex < entrySize; byteIndex++) {
 			// "CRC" at the end is just the sum of all bytes

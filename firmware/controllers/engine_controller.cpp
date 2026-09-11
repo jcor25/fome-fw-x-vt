@@ -33,11 +33,11 @@
 #include "high_pressure_fuel_pump.h"
 #include "malfunction_indicator.h"
 #include "speed_density.h"
+#include "cpu_usage.h"
 #include "local_version_holder.h"
 #include "alternator_controller.h"
 #include "fuel_math.h"
 #include "spark_logic.h"
-#include "accelerometer.h"
 #include "vvt.h"
 #include "boost_control.h"
 #include "fan_control.h"
@@ -88,6 +88,15 @@ static void resetAccel() {
 
 void doPeriodicSlowCallback() {
 	ScopePerf perf(PE::EnginePeriodicSlowCallback);
+
+	{
+		// Slow callback runs at 20 Hz; sample CPU usage every 5 ticks (0.25 s).
+		static uint8_t cpuUsageDivider = 0;
+		if (++cpuUsageDivider >= 5) {
+			cpuUsageDivider = 0;
+			engine->outputChannels.cpuUsage = cpuUsageSampleAndReset();
+		}
+	}
 
 #if EFI_ENGINE_CONTROL && EFI_SHAFT_POSITION_INPUT
 	slowStartStopButtonCallback();
@@ -312,8 +321,8 @@ void commonInitEngineController() {
 
 // Returns false if there's an obvious problem with the loaded configuration
 bool validateConfig() {
-	if (engineConfiguration->cylindersCount > MAX_CYLINDER_COUNT) {
-		firmwareError("Invalid cylinder count: %d", engineConfiguration->cylindersCount);
+	if (getFiringOrderLength() > MAX_CYLINDER_COUNT) {
+		firmwareError("Invalid cylinder count: %d", getFiringOrderLength());
 		return false;
 	}
 
@@ -466,6 +475,13 @@ bool validateConfig() {
 
 	if (engineConfiguration->injectorNonlinearMode == INJ_SmallPulseAdder) {
 		ensureArrayIsAscending("Small PW adder", config->smallPulseAdderBins);
+	}
+
+	if (engineConfiguration->enableTorqueModel) {
+		ensureArrayIsAscending("Driver torque demand pedal", config->driverTorquePedalBins);
+		ensureArrayIsAscending("Driver torque demand RPM", config->driverTorqueRpmBins);
+
+		ensureArrayIsAscending("Torque reduction bins", config->torqueReductionRetardReqBins);
 	}
 
 	return true;

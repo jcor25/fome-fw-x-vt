@@ -25,6 +25,7 @@ Bit: 'bit';
 Array: 'array';
 Scalar: 'scalar';
 Autoscale: 'autoscale';
+Autotemp: 'autotemp';
 Resizable: 'resizable';
 
 ArrayDimensionSeparator: 'x';
@@ -95,14 +96,15 @@ fieldOptionsList
 
 arrayLengthSpec: numexpr (ArrayDimensionSeparator numexpr)?;
 
-scalarField: identifier Autoscale? identifier (fieldOptionsList)?;
-arrayField: identifier '[' arrayLengthSpec Iterate? ']' Autoscale? identifier SemicolonedString? (fieldOptionsList)?;
+scalarField: identifier (Autoscale Autotemp? | Autotemp Autoscale?)? identifier (fieldOptionsList)?;
+arrayField: identifier '[' arrayLengthSpec Iterate? ']' (Autoscale Autotemp? | Autotemp Autoscale?)? identifier SemicolonedString? (fieldOptionsList)?;
 bitField: Bit identifier (',' QuotedString ',' QuotedString)? ('(' 'comment' ':' QuotedString ')')? SemicolonedSuffix?;
 
 unionField: 'union' ENDL+ fields 'end_union';
 
-tableAxisSpec: ('min' integer 'max' integer|'num' integer);
-tableField: 'begin_table' ('maxsize' integer)? ENDL+
+tableAxisSpec: ('min' numexpr 'max' numexpr|'num' numexpr);
+tableMaxSize: 'maxsize' numexpr;
+tableField: 'begin_table' tableMaxSize? ENDL+
     'table_rows' tableAxisSpec scalarField ENDL+
     'table_cols' tableAxisSpec scalarField  ENDL+
     ('table_values' scalarField ENDL+)+
@@ -123,7 +125,9 @@ fields
 // Indicates X bytes of free space
 unusedField: Unused integer;
 
-enumVal: QuotedString | integer;
+// the "integer '=' QuotedString" form is a compacted enum, where each name is explicitly paired
+// with its numeric value instead of the name's position implying it
+enumVal: integer '=' QuotedString | QuotedString | integer;
 
 enumRhs
     : replacementIdent

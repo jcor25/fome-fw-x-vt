@@ -31,9 +31,33 @@ or
 ## Unreleased
 
 ### Added
+ - Fahrenheit temperature support: pick "Fahrenheit" under Settings > Temperature Units in TunerStudio and all temperature gauges, datalogs, sensor adjustments, and thermistor calibration points display in °F. The stored tune is unchanged (always Celsius internally), so switching units never resets your configuration and works on every supported board.
  - Add mode for "true" wasted spark on odd fire engines (Viper V10) where companion cylinders are not exactly 360 degrees apart. Requires cam sync.
+ - New `CPU usage` output channel showing approximate firmware CPU load
+ - SD card logs now contain every output channel (full parity with the TunerStudio log), rather than only a curated subset - previously-missing data like idle, throttle, wideband and wall-fuel state is now logged
+ - IMU data (lateral/longitudinal acceleration and yaw rate) from the BMW E90 MK60e1/MK60e5 DSC/ABS module
+ - New VVT mode "Honda K24Z Exhaust" for the three-tooth unevenly spaced exhaust cam wheel used on the K24Z, which differs from the 4+1 wheel of earlier K series engines. This pattern is used by K series engines that use a 60-2 crank pattern.
+ - CAN wideband controllers now report "time since last CAN frame received" and a TunerStudio alive indicator for all 4 wideband channels (previously only 2 had live data at all), so a dead/disconnected controller can be spotted even when its lambda reading is invalid
+ - New firing order 1-6-2-5-3-4 (Maserati V6) #789
+ - Brake pedal switch state is now decoded from CAN when CAN VSS is set to BMW E8x/E9x MK60e5, so no physical brake switch input is required on those cars
+ - New CAN VSS type "AUMOVIO MK 100 UHP" for the Continental/AUMOVIO MK 100 UHP ABS module, decoding vehicle speed, all four wheel speeds, brake pedal state, and IMU data (lateral/longitudinal/vertical acceleration and yaw rate)
+ - Flex fuel ethanol content is now correct immediately at startup, instead of ramping up from 0% over the first second while the sensor's filter settles. The last valid reading is stored in backup RAM, and used to prime the filter at startup as well as any time the sensor is failed - the fuel in the tank can't change while the ECU isn't watching. If no value was stored and the sensor is dead, the fallback is configurable: "Failed flex sensor ethanol content", defaulting to 50%.
+
+
+
+### Changed
+ - Cylinder count is now derived automatically from the firing order instead of being a separate setting, so the two can no longer disagree.
 
 ### Fixed
+ - STM32F7 dual-bank ECUs no longer stall (potentially stopping the engine) when burning configuration with the engine running - configuration is now committed to flash when the engine is stopped #776
+ - SD card log field names now include their category prefix (e.g. `Boost: Target` instead of just `Target`), matching the names shown in TunerStudio
+ - Injector and ignition circuit fault codes now name the correct cylinder on boards with smart driver chips. Cylinder 1 previously reported P0202/P0352 instead of P0201/P0351, cylinders 10-12 reported nonsense codes, and cylinder 12 reported no code at all
+ - The "wideband controller firmware too old" fault now reports its own code (P2902) instead of P2133, which is also used for "accelerator pedal secondary too high" - the two faults could not be told apart
+ - Sensor, trigger, cam, knock and injector/ignition circuit fault codes now require the fault to persist for about a second before they light the check engine light, so a single bad reading no longer latches a code #780
+ - Fix fuel level input
+ - Improve STM32H7/Atlas SD card reliability
+ - General SD card logging performance and reliabilty improvements
+ - Fix conflict between aux temp 2 and oil temperature sensor configuration
  - Honda J 6-2 cam trigger: widen sync gap tolerances so normal cranking RPM jitter no longer causes spurious VVT sync errors/resyncs.
  - MAP cylinder balancing no longer corrupts the MAP reading above 255 kPa. Engines running more than ~22 psi of boost could see reported MAP jump anywhere between 60 and 440 kPa while actual manifold pressure was steady, throwing fuel and ignition off badly at high load.
 

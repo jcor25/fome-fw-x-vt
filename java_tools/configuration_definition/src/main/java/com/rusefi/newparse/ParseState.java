@@ -20,7 +20,8 @@ public class ParseState implements DefinitionsState {
     private final Map<String, Definition> definitions = new HashMap<>();
     private final Map<String, Struct> structs = new HashMap<>();
     private final List<Struct> structList = new ArrayList<>();
-    private final Map<String, Typedef> typedefs = new HashMap<>();
+    // Insertion ordered so that generated output is stable from one run to the next
+    private final Map<String, Typedef> typedefs = new LinkedHashMap<>();
     private static final Pattern CHAR_LITERAL = Pattern.compile("'.'");
     private static final Pattern AT_SIGN_REPLACEMENT = Pattern.compile("\\@\\@([A-Za-z0-9_]+)\\@\\@");
 
@@ -62,6 +63,22 @@ public class ParseState implements DefinitionsState {
         return definitions;
     }
 
+    /**
+     * Every enum typedef seen, keyed by name, in the order they were declared. Any enum field's
+     * {@link com.rusefi.newparse.layout.EnumLayout#enumType} names one of these.
+     */
+    public Map<String, EnumTypedef> getEnumTypedefs() {
+        Map<String, EnumTypedef> result = new LinkedHashMap<>();
+
+        typedefs.forEach((name, typedef) -> {
+            if (typedef instanceof EnumTypedef) {
+                result.put(name, (EnumTypedef)typedef);
+            }
+        });
+
+        return result;
+    }
+
     private void handleIntDefinition(String name, int value) {
         addDefinition(name, value);
 
@@ -82,9 +99,9 @@ public class ParseState implements DefinitionsState {
         return lastStruct;
     }
 
-    private String[] resolveEnumValues(String enumName) {
+    private EnumValues resolveEnumValues(String enumName) {
         if (this.enumsReader == null) {
-            return new String[0];
+            return new EnumValues(new String[0]);
         }
 
         TreeMap<Integer, String> valueNameById = new TreeMap<>();
@@ -109,7 +126,7 @@ public class ParseState implements DefinitionsState {
             result[i] = valueNameById.getOrDefault(i, "INVALID");
         }
 
-        return result;
+        return new EnumValues(result);
     }
 
     public List<Struct> getStructs() {
@@ -230,7 +247,7 @@ public class ParseState implements DefinitionsState {
 
         String rhs = ctx.enumRhs().getText();
 
-        String[] values = null;
+        EnumValues values = null;
 
         if (rhs.startsWith("@@")) {
             String defName = rhs.replaceAll("@", "");
@@ -257,10 +274,7 @@ public class ParseState implements DefinitionsState {
         }
 
         if (values == null) {
-            values = Arrays.stream(rhs.split(","))                    // Split on commas
-                        .map(String::trim)                                  // trim whitespace
-                        .map(s -> s.replaceAll("\"", ""))   // Remove quotes
-                        .toArray(String[]::new);                            // Convert back to array
+            values = EnumValues.parse(rhs);
         }
 
         typedefs.put(typedefName, new EnumTypedef(typedefName, datatype, endBit, values));
@@ -370,6 +384,7 @@ public class ParseState implements DefinitionsState {
         String type = ctx.identifier(0).getText();
         String name = ctx.identifier(1).getText();
         boolean autoscale = ctx.Autoscale() != null;
+        boolean autotemp = ctx.Autotemp() != null;
 
         // First check if this is an instance of a struct
         if (structs.containsKey(type)) {
@@ -421,7 +436,7 @@ public class ParseState implements DefinitionsState {
         // Merge the read-in options list with the default from the typedef (if exists)
         handleFieldOptionsList(options, ctx.fieldOptionsList());
 
-        scope.addField(new ScalarField(Type.findByCtype(type).get(), name, options, autoscale));
+        scope.addField(new ScalarField(Type.findByCtype(type).get(), name, options, autoscale, autotemp));
     }
 
     @Override
@@ -497,6 +512,7 @@ public class ParseState implements DefinitionsState {
         // check if the iterate token is present
         boolean iterate = ctx.Iterate() != null;
         boolean autoscale = ctx.Autoscale() != null;
+        boolean autotemp = ctx.Autotemp() != null;
 
         if (iterate && length.length != 1) {
             throw new IllegalStateException("Cannot iterate multi dimensional array: " + name);
@@ -560,7 +576,7 @@ public class ParseState implements DefinitionsState {
         // Merge the read-in options list with the default from the typedef (if exists)
         handleFieldOptionsList(options, ctx.fieldOptionsList());
 
-        ScalarField prototype = new ScalarField(Type.findByCtype(type).get(), name, options, autoscale);
+        ScalarField prototype = new ScalarField(Type.findByCtype(type).get(), name, options, autoscale, autotemp);
 
         scope.addField(new ArrayField<>(prototype, length, iterate));
     }
@@ -578,10 +594,35 @@ public class ParseState implements DefinitionsState {
         }
     }
 
+    // Axis sizes of the table currently being parsed, in declaration order (rows then cols).
+    // Each entry is either {count} or {min, max} for a resizable axis. These are captured as the
+    // axis spec exits so that they don't collide with the numexprs of the field on the same line.
+    private final List<int[]> tableAxisSizes = new ArrayList<>();
+    private Integer tableMaxSize = null;
+
     @Override
     public void enterTableField(RusefiConfigGrammarParser.TableFieldContext ctx) {
+        tableAxisSizes.clear();
+        tableMaxSize = null;
+
         // Make a new scope as if we're a struct, we'll chop it apart later
         enterStruct(null);
+    }
+
+    @Override
+    public void exitTableMaxSize(RusefiConfigGrammarParser.TableMaxSizeContext ctx) {
+        tableMaxSize = evalResults.remove().intValue();
+    }
+
+    @Override
+    public void exitTableAxisSpec(RusefiConfigGrammarParser.TableAxisSpecContext ctx) {
+        int[] sizes = new int[ctx.numexpr().size()];
+
+        for (int i = 0; i < sizes.length; i++) {
+            sizes[i] = evalResults.remove().intValue();
+        }
+
+        tableAxisSizes.add(sizes);
     }
 
     @Override
@@ -600,28 +641,34 @@ public class ParseState implements DefinitionsState {
         int expectedValuesSize = valuesPrototypes.get(0).type.size;
         assert(valuesPrototypes.stream().allMatch(v -> v.type.size == expectedValuesSize));
 
+        int[] rowSpec = tableAxisSizes.get(0);
+        int[] colSpec = tableAxisSizes.get(1);
+
         int maxRows;
         int maxCols;
 
-        boolean isResizable = ctx.integer() != null;
+        boolean isResizable = rowSpec.length == 2 || colSpec.length == 2;
         if (isResizable) {
-            int minRows = Integer.parseInt(ctx.tableAxisSpec(0).integer(0).getText());
-            maxRows = Integer.parseInt(ctx.tableAxisSpec(0).integer(1).getText());
-            int minCols = Integer.parseInt(ctx.tableAxisSpec(1).integer(0).getText());
-            maxCols = Integer.parseInt(ctx.tableAxisSpec(1).integer(1).getText());
+            if (rowSpec.length != 2 || colSpec.length != 2) {
+                throw new IllegalStateException("table must specify min/max on both axes, or neither");
+            }
 
-            int maxValues = Integer.parseInt(ctx.integer().getText());
+            if (tableMaxSize == null) {
+                throw new IllegalStateException("resizable table requires a maxsize");
+            }
+
+            int minRows = rowSpec[0];
+            maxRows = rowSpec[1];
+            int minCols = colSpec[0];
+            maxCols = colSpec[1];
 
             // Check that we can at least fit a minimum size table
-            assert(maxValues >= minRows * minCols);
+            assert(tableMaxSize >= minRows * minCols);
 
             throw new IllegalStateException("resizable table not supported yet");
         } else {
-            int rowCount = Integer.parseInt(ctx.tableAxisSpec(0).integer(0).getText());
-            int colCount = Integer.parseInt(ctx.tableAxisSpec(1).integer(0).getText());
-
-            maxRows = rowCount;
-            maxCols = colCount;
+            maxRows = rowSpec[0];
+            maxCols = colSpec[0];
         }
 
         // Generate bins

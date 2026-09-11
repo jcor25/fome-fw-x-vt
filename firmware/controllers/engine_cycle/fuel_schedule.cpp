@@ -12,35 +12,17 @@
 extern bool printFuelDebug;
 
 void startInjection(InjectorContext ctx) {
-	uint16_t mask = ctx.outputsMask;
-	size_t idx = 0;
+	forEachSetBit(ctx.outputsMask, [&ctx](size_t idx) {
+		enginePins.injectors[idx].open();
 
-	while (mask) {
-		if (mask & 0x1) {
-			enginePins.injectors[idx].open();
-
-			if (ctx.stage2Active) {
-				enginePins.injectorsStage2[idx].open();
-			}
+		if (ctx.stage2Active) {
+			enginePins.injectorsStage2[idx].open();
 		}
-
-		mask = mask >> 1;
-		idx++;
-	}
+	});
 }
 
 void endInjection(InjectorContext ctx) {
-	uint16_t mask = ctx.outputsMask;
-	size_t idx = 0;
-
-	while (mask) {
-		if (mask & 0x1) {
-			enginePins.injectors[idx].close();
-		}
-
-		mask = mask >> 1;
-		idx++;
-	}
+	forEachSetBit(ctx.outputsMask, [](size_t idx) { enginePins.injectors[idx].close(); });
 
 	if (ctx.splitDurationUs > 0) {
 		efitick_t openTime = getTimeNowNt() + MS2NT(2);
@@ -60,17 +42,7 @@ void endInjection(InjectorContext ctx) {
 }
 
 void endInjectionStage2(InjectorContext ctx) {
-	uint16_t mask = ctx.outputsMask;
-	size_t idx = 0;
-
-	while (mask) {
-		if (mask & 0x1) {
-			enginePins.injectorsStage2[idx].close();
-		}
-
-		mask = mask >> 1;
-		idx++;
-	}
+	forEachSetBit(ctx.outputsMask, [](size_t idx) { enginePins.injectorsStage2[idx].close(); });
 }
 
 uint16_t InjectionEvent::calculateInjectorOutputMask() const {
@@ -79,7 +51,7 @@ uint16_t InjectionEvent::calculateInjectorOutputMask() const {
 	switch (m_injectionMode) {
 		case IM_SIMULTANEOUS:
 			// Simultaneous mode fires all injectors
-			mask = (1 << engineConfiguration->cylindersCount) - 1;
+			mask = (1 << engine->engineState.cylinderCount) - 1;
 			break;
 		case IM_SINGLE_POINT:
 			// Single point only fires injector 1
@@ -93,8 +65,7 @@ uint16_t InjectionEvent::calculateInjectorOutputMask() const {
 			// fires the injector 360 degrees later in the firing order.
 			mask |=
 					(1 << getCylinderNumberAtIndex(
-							 (ownIndex + (engineConfiguration->cylindersCount / 2)) %
-							 engineConfiguration->cylindersCount));
+							 (ownIndex + (engine->engineState.cylinderCount / 2)) % engine->engineState.cylinderCount));
 
 			// falls through
 		case IM_SEQUENTIAL:
@@ -354,7 +325,7 @@ bool InjectionEvent::update() {
 }
 
 void FuelSchedule::addFuelEvents() {
-	for (size_t cylinderIndex = 0; cylinderIndex < engineConfiguration->cylindersCount; cylinderIndex++) {
+	for (size_t cylinderIndex = 0; cylinderIndex < engine->engineState.cylinderCount; cylinderIndex++) {
 		bool result = elements[cylinderIndex].update();
 
 		if (!result) {
@@ -373,7 +344,7 @@ void FuelSchedule::onTriggerTooth(const EnginePhaseInfo& phase) {
 		return;
 	}
 
-	for (size_t i = 0; i < engineConfiguration->cylindersCount; i++) {
+	for (size_t i = 0; i < engine->engineState.cylinderCount; i++) {
 		elements[i].onTriggerTooth(phase);
 	}
 }

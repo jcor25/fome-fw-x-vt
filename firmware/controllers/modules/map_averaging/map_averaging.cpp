@@ -152,7 +152,7 @@ void MapAverager::onSample(float map, uint8_t cylinderNumber) {
 
 void EngineState::updateMapCylinderOffsets() {
 	// First pass: compute average MAP for all cylinders, and how far apart they are
-	auto cylCount = engineConfiguration->cylindersCount;
+	auto cylCount = engine->engineState.cylinderCount;
 
 	float avgMap = 0;
 	float minMap = mapPerCylinderFloat[0];
@@ -227,7 +227,7 @@ void MapAveragingModule::onFastCallback() {
 	angle_t start = interpolate2d(rpm, c->samplingAngleBins, c->samplingAngle);
 	efiAssertVoid(ObdCode::CUSTOM_ERR_MAP_START_ASSERT, !std::isnan(start), "start");
 
-	for (size_t i = 0; i < engineConfiguration->cylindersCount; i++) {
+	for (size_t i = 0; i < engine->engineState.cylinderCount; i++) {
 		float cylinderStart = start + engine->cylinders[i].getAngleOffset();
 		wrapAngle(cylinderStart, "cylinderStart", ObdCode::CUSTOM_ERR_6562);
 		engine->engineState.mapAveragingStart[i] = cylinderStart;
@@ -237,7 +237,7 @@ void MapAveragingModule::onFastCallback() {
 	assertAngleRange(duration, "samplingDuration", ObdCode::CUSTOM_ERR_6563);
 
 	// Clamp the duration to slightly less than one cylinder period
-	float cylinderPeriod = engine->engineState.engineCycle / engineConfiguration->cylindersCount;
+	float cylinderPeriod = engine->engineState.engineCycle / engine->engineState.cylinderCount;
 	engine->engineState.mapAveragingDuration = clampF(10, duration, cylinderPeriod - 10);
 }
 
@@ -249,7 +249,7 @@ void MapAveragingModule::onEnginePhase(float /*rpm*/, const EnginePhaseInfo& pha
 
 	ScopePerf perf(PE::MapAveragingTriggerCallback);
 
-	int samplingCount = engineConfiguration->measureMapOnlyInOneCylinder ? 1 : engineConfiguration->cylindersCount;
+	int samplingCount = engineConfiguration->measureMapOnlyInOneCylinder ? 1 : engine->engineState.cylinderCount;
 
 	for (int i = 0; i < samplingCount; i++) {
 		angle_t samplingStart = engine->engineState.mapAveragingStart[i];

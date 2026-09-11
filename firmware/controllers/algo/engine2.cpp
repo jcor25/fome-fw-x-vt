@@ -161,6 +161,10 @@ void EngineState::periodicFastCallback() {
 			engine->ignitionState.getAdvance(rpm, ignitionLoad, isCranking) * engine->ignitionState.luaTimingMult +
 			engine->ignitionState.luaTimingAdd;
 
+	// Torque-reduction controller: pull timing and arm cylinder cut to bring delivered
+	// torque down to the requested reduction.
+	untrimmedAdvance -= engine->torqueReductionController.update();
+
 	// that's weird logic. also seems broken for two stroke?
 	engine->outputChannels.ignitionAdvance =
 			(float)(untrimmedAdvance > FOUR_STROKE_CYCLE_DURATION / 2 ? untrimmedAdvance - FOUR_STROKE_CYCLE_DURATION
@@ -172,7 +176,7 @@ void EngineState::periodicFastCallback() {
 	}
 
 	// Now apply that to per-cylinder fueling and timing
-	for (size_t i = 0; i < engineConfiguration->cylindersCount; i++) {
+	for (size_t i = 0; i < engine->engineState.cylinderCount; i++) {
 		uint8_t bankIndex = engineConfiguration->cylinderBankSelect[i];
 		auto bankTrim = engine->stftCorrection[bankIndex];
 		auto cylinderTrim = getCylinderFuelTrim(i, rpm, fuelLoad);
@@ -275,6 +279,8 @@ static trigger_type_e getVvtTriggerType(vvt_mode_e vvtMode) {
 			return trigger_type_e::TT_VVT_BOSCH_QUICK_START;
 		case VVT_HONDA_K_EXHAUST:
 			return trigger_type_e::TT_HONDA_K_CAM_4_1;
+		case VVT_HONDA_K24Z_EXHAUST:
+			return trigger_type_e::TT_HONDA_K24Z_CAM_3;
 		case VVT_FORD_ST170:
 			return trigger_type_e::TT_FORD_ST170;
 		case VVT_BARRA_3_PLUS_1:

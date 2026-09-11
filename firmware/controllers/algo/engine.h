@@ -26,6 +26,9 @@
 #include "injector_model.h"
 #include "launch_control.h"
 #include "antilag_system.h"
+#include "torque_reduction_controller.h"
+#include "torque_model.h"
+#include "traction_control.h"
 #include "trigger_scheduler.h"
 #include "main_relay.h"
 #include "ac_control.h"
@@ -187,6 +190,9 @@ public:
 			Mockable<InjectorModelPrimary>,
 			Mockable<InjectorModelSecondary>,
 #if EFI_IDLE_CONTROL
+			// IdleTargetController computes idle target RPM + phase; it must run before IdleController
+			// (and TorqueModel) so they read a fresh cached result.
+			Mockable<IdleTargetController>,
 			Mockable<IdleController>,
 #endif // EFI_IDLE_CONTROL
 			TriggerScheduler,
@@ -194,6 +200,7 @@ public:
 			HpfpController,
 #endif // EFI_HPFP && EFI_ENGINE_CONTROL
 			Mockable<ThrottleModel>,
+			Mockable<TorqueModel>,
 #if EFI_ALTERNATOR_CONTROL
 			AlternatorController,
 #endif /* EFI_ALTERNATOR_CONTROL */
@@ -238,7 +245,14 @@ public:
 #if EFI_LAUNCH_CONTROL
 	LaunchControlBase launchController;
 	SoftSparkLimiter softSparkLimiter;
+
+	// Cut limiter armed by the torque-reduction controller (spark-only TC / torque coordinator)
+	SoftSparkLimiter torqueReductionSparkLimiter;
 #endif // EFI_LAUNCH_CONTROL
+
+	TorqueReductionController torqueReductionController;
+
+	TractionController tractionController;
 
 #if EFI_ANTILAG_SYSTEM
 	AntilagSystemBase antilagController;
@@ -316,7 +330,6 @@ public:
 
 	void periodicFastCallback();
 	void periodicSlowCallback();
-	void onEngineStopped();
 	void updateSlowSensors();
 	void updateSwitchInputs();
 	void updateTriggerWaveform();
@@ -338,8 +351,6 @@ public:
 	 * RPM
 	 */
 	efitimeus_t timeToStopIdleTest = 0;
-
-	SensorsState sensors;
 
 	void efiWatchdog();
 

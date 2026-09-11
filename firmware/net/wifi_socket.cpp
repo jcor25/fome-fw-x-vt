@@ -33,13 +33,21 @@ void ServerSocket::onAccept(int connectedSocket) {
 
 bool ServerSocket::closeSocket() {
 	bool wasOpen = m_connectedSocket != -1;
-	close(m_connectedSocket);
-
-	m_connectedSocket = -1;
+	if (wasOpen) {
+		close(m_connectedSocket);
+		m_connectedSocket = -1;
+	}
 
 	{
 		chibios_rt::CriticalSectionLocker csl;
 		iqResetI(&m_recvQueue);
+
+		// Any thread waiting on m_sendDoneSemaphore (in send()) needs to be woken up,
+		// otherwise it will deadlock forever waiting for a hardware confirmation that
+		// will never come for a closed socket. resetI(true) wakes it with MSG_RESET
+		// and leaves the semaphore 'taken' for the next connection.
+		m_sendRequest = false;
+		m_sendDoneSemaphore.resetI(true);
 	}
 
 	return wasOpen;
@@ -99,8 +107,15 @@ void ServerSocket::send(uint8_t* buffer, size_t size) {
 	// Wake the driver to perform the actual send
 	isrSemaphore.signal();
 
-	// Wait for this chunk to complete
-	m_sendDoneSemaphore.wait();
+	// Wait for this chunk to complete; 5s timeout guards against a driver that never
+	// fires SOCKET_MSG_SEND (which would otherwise deadlock this thread forever).
+	msg_t result = m_sendDoneSemaphore.wait(TIME_MS2I(5000));
+	if (result != MSG_OK) {
+		// Timeout, or the semaphore was reset by closeSocket() without a successful
+		// send — cancel the pending request and close so callers see the failure.
+		m_sendRequest = false;
+		closeSocket();
+	}
 }
 
 void ServerSocket::onSendDone() {
@@ -143,10 +158,21 @@ size_t ServerSocket::recvTimeout(uint8_t* buffer, size_t size, int timeout) {
 
 bool ServerSocket::trySendImpl() {
 	if ((m_connectedSocket != -1) && m_sendRequest) {
-		::send(m_connectedSocket, (void*)m_sendBuffer, m_sendSize, 0);
-		m_sendRequest = false;
+		sint16 result = ::send(m_connectedSocket, (void*)m_sendBuffer, m_sendSize, 0);
 
-		return true;
+		if (result == SOCK_ERR_NO_ERROR) {
+			m_sendRequest = false;
+			return true;
+		} else if (result == SOCK_ERR_BUFFER_FULL) {
+			// Driver buffers are full, retry on the next helper tick
+			return false;
+		} else {
+			// Permanent error: wake the caller so it isn't deadlocked waiting for a
+			// send-done that will never arrive. It detects the error on next operation.
+			efiPrintf("WiFi: send error %d on sock %d", (int)result, m_connectedSocket);
+			closeSocket();
+			return true;
+		}
 	}
 
 	return false;
@@ -175,11 +201,16 @@ static void socketCallback(SOCKET sock, uint8_t u8Msg, void* pvMsg) {
 			auto bindMsg = reinterpret_cast<tstrSocketBindMsg*>(pvMsg);
 			if (bindMsg && bindMsg->status == 0) {
 				// Socket bind complete, now listen!
-				listen(sock, 1);
+				// A backlog of 3 helps handle rapid discovery from Tunerstudio's port scanner.
+				listen(sock, 3);
 			}
 		} break;
 		case SOCKET_MSG_LISTEN: {
-			// no-op, accept() is implicit
+			// accept() is implicit; just surface a failure if listen didn't take
+			auto listenMsg = reinterpret_cast<tstrSocketListenMsg*>(pvMsg);
+			if (listenMsg && listenMsg->status != 0) {
+				efiPrintf("WiFi: Listen failed on sock %d with %d", (int)sock, (int)listenMsg->status);
+			}
 		} break;
 		case SOCKET_MSG_ACCEPT: {
 			auto acceptMsg = reinterpret_cast<tstrSocketAcceptMsg*>(pvMsg);
@@ -194,6 +225,10 @@ static void socketCallback(SOCKET sock, uint8_t u8Msg, void* pvMsg) {
 
 				if (auto server = ServerSocket::findListener(sock)) {
 					server->onAccept(acceptMsg->sock);
+				} else {
+					// No server owns this listener — don't leak the accepted socket
+					efiPrintf("WiFi: No listener for sock %d", (int)sock);
+					close(acceptMsg->sock);
 				}
 			}
 		} break;

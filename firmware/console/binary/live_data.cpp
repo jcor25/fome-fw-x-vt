@@ -8,6 +8,9 @@
 #include "knock_controller_generated.h"
 #include "fuel_computer.h"
 #include "antilag_system_state_generated.h"
+#include "torque_reduction_state_generated.h"
+#include "torque_model.h"
+#include "traction_control.h"
 #include "vvt_generated.h"
 
 template <>
@@ -36,6 +39,21 @@ const launch_control_state_s* getLiveData(size_t) {
 #else
 	return nullptr;
 #endif
+}
+
+template <>
+const torque_reduction_state_s* getLiveData(size_t) {
+	return &engine->torqueReductionController;
+}
+
+template <>
+const traction_control_state_s* getLiveData(size_t) {
+	return &engine->tractionController;
+}
+
+template <>
+const torque_model_s* getLiveData(size_t) {
+	return &engine->module<TorqueModel>().unmock();
 }
 
 template <>
@@ -168,6 +186,15 @@ template <>
 const idle_state_s* getLiveData(size_t) {
 #if EFI_IDLE_CONTROL
 	return &engine->module<IdleController>().unmock();
+#else
+	return nullptr;
+#endif
+}
+
+template <>
+const idle_target_s* getLiveData(size_t) {
+#if EFI_IDLE_CONTROL
+	return &engine->module<IdleTargetController>().unmock();
 #else
 	return nullptr;
 #endif

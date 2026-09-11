@@ -103,10 +103,15 @@ typedef enum __attribute__((__packed__)) {
 	VVT_MAZDA_L = 19,
 
 	/**
+	 * 3 unevenly spaced teeth
+	 */
+	VVT_HONDA_K24Z_EXHAUST = 20,
+
+	/**
 	 * Honda J-series (V6) intake cam: 6 tooth slots, 2 missing, giving one distinct ~3x gap per 720 degree cam
 	 * revolution.
 	 */
-	VVT_HONDA_J_6_2 = 20,
+	VVT_HONDA_J_6_2 = 21,
 
 } vvt_mode_e;
 
@@ -294,8 +299,9 @@ typedef enum __attribute__((__packed__)) {
 	W202 = 1,
 	BMW_e90 = 2,
 	Mx5_NC = 3,
+	MK100_UHP = 4,
 
-	CanVssLast = 4,
+	CanVssLast = 5,
 } can_vss_nbc_e;
 
 enum class WssToVssMode : uint8_t {
@@ -311,7 +317,7 @@ enum class WssToVssMode : uint8_t {
  */
 typedef enum __attribute__((__packed__)) {
 	IMU_NONE = 0,
-	IMU_VAG = 1,
+	IMU_TYPE_1 = 1,
 	/**
 	 * f037000002
 	 * https://github.com/rusefi/rusefi_documentation/blob/master/OEM-Docs/Bosch/Data%20Sheet_68903691_Acceleration_Sensor_MM5.10.pdf

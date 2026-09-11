@@ -14,6 +14,7 @@
 #include "trigger_central.h"
 #include "fuel_math.h"
 #include "speed_density.h"
+#include "init.h"
 
 #include "perf_trace.h"
 #include "backup_ram.h"
@@ -24,6 +25,7 @@
 #include "boost_control.h"
 #include "ac_control.h"
 #include "vr_pwm.h"
+#include "can_vss.h"
 #if EFI_MC33816
 #include "mc33816.h"
 #endif // EFI_MC33816
@@ -41,7 +43,6 @@
 
 #if EFI_ENGINE_SNIFFER
 #include "engine_sniffer.h"
-extern int waveChartUsedSize;
 extern WaveChart waveChart;
 #endif /* EFI_ENGINE_SNIFFER */
 
@@ -75,15 +76,25 @@ void Engine::periodicSlowCallback() {
 	for (int camIndex = 0; camIndex < CAMS_PER_BANK; camIndex++) {
 		triggerCentral.vvtTriggerConfiguration[camIndex].update();
 	}
+
+	// If it's been too long since the last trigger event, the engine has stopped.
+	if (!triggerCentral.engineMovedRecently(getTimeNowNt()) && !rpmCalculator.isStopped()) {
+		OnTriggerSynchronizationLost();
+	}
 #endif // EFI_SHAFT_POSITION_INPUT
 
 	efiWatchdog();
 	updateSlowSensors();
+	updateWidebandAliveTimers();
 	checkShutdown();
 
 	module<TpsAccelEnrichment>()->onNewValue(Sensor::getOrZero(SensorType::Tps1));
 
 	updateVrPwm();
+
+	// Remember the current ethanol content so we have something sane to use before the flex
+	// sensor wakes up on the next start
+	updateStoredFlexEthanolPercent();
 
 	enginePins.o2heater.setValue(engineConfiguration->forceO2Heating || engine->rpmCalculator.isRunning());
 	enginePins.starterRelayDisable.setValue(Sensor::getOrZero(SensorType::Rpm) < engineConfiguration->cranking.rpm);
@@ -128,6 +139,14 @@ static bool getBrakePedalState() {
 	if (isBrainPinValid(engineConfiguration->brakePedalPin)) {
 		return engineConfiguration->brakePedalPinInverted ^ efiReadPin(engineConfiguration->brakePedalPin);
 	}
+
+#if EFI_CAN_SUPPORT
+	// Some vehicles broadcast the brake switch on CAN, use that if we have it
+	if (auto canBrake = getCanBrakePedalState()) {
+		return canBrake.Value;
+	}
+#endif // EFI_CAN_SUPPORT
+
 	return engine->engineState.lua.brakePedalState;
 }
 
@@ -186,7 +205,7 @@ void Engine::resetLua() {
 	ignitionState.luaTimingMult = 1;
 #if EFI_IDLE_CONTROL
 	module<IdleController>().unmock().luaAdd = 0;
-	module<IdleController>().unmock().luaAddRpm = 0;
+	module<IdleTargetController>().unmock().luaAddRpm = 0;
 #endif // EFI_IDLE_CONTROL
 }
 
@@ -196,7 +215,8 @@ void Engine::OnTriggerStateProperState(efitick_t nowNt) {
 }
 
 void Engine::OnTriggerSynchronizationLost() {
-	// Needed for early instant-RPM detection
+	efiPrintf("engine stopped");
+
 	rpmCalculator.setStopSpinning();
 
 	triggerCentral.triggerState.resetState();
@@ -211,6 +231,9 @@ void Engine::OnTriggerSynchronizationLost() {
 	// Reset injector & ignition scheduling to avoid wrong mode or dwell during restart
 	injectionEvents.invalidate();
 	engine->ignitionEvents.isReady = false;
+
+	// Notify modules that the engine has stopped
+	engineModules.apply_all([](auto& m) { m.onEngineStop(); });
 }
 
 void Engine::OnTriggerSyncronization(bool wasSynchronized, bool isDecodingError) {
@@ -408,10 +431,6 @@ void Engine::periodicFastCallback() {
 	speedoUpdate();
 
 	engineModules.apply_all([](auto& m) { m.onFastCallback(); });
-}
-
-void Engine::onEngineStopped() {
-	engineModules.apply_all([](auto& m) { m.onEngineStop(); });
 }
 
 EngineRotationState* getEngineRotationState() {
