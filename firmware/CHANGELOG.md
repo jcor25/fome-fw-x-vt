@@ -40,6 +40,7 @@ or
  - CAN wideband controllers now report "time since last CAN frame received" and a TunerStudio alive indicator for all 4 wideband channels (previously only 2 had live data at all), so a dead/disconnected controller can be spotted even when its lambda reading is invalid
  - New firing order 1-6-2-5-3-4 (Maserati V6) #789
  - Brake pedal switch state is now decoded from CAN when CAN VSS is set to BMW E8x/E9x MK60e5, so no physical brake switch input is required on those cars
+ - Brake pedal switch input can now be inverted, for vehicles where the brake switch pulls the input low when the pedal is pressed
  - New CAN VSS type "AUMOVIO MK 100 UHP" for the Continental/AUMOVIO MK 100 UHP ABS module, decoding vehicle speed, all four wheel speeds, brake pedal state, and IMU data (lateral/longitudinal/vertical acceleration and yaw rate)
  - New VVT mode "Honda J 6-2" for the Honda J-series V6 intake cam, which has six evenly spaced tooth slots with two of them missing, giving one distinct wide gap per cam revolution.
  - Cooling fans can be turned off above a set vehicle speed ("Disable above speed", per fan), since ram air cools the radiator at speed. This overrides the temperature and AC fan requests, but a failed coolant temperature sensor still turns the fan on. Set to 0 to disable.
@@ -49,6 +50,7 @@ or
 
 ### Changed
  - Cylinder count is now derived automatically from the firing order instead of being a separate setting, so the two can no longer disagree.
+ - Instant RPM is now used automatically on triggers with 24 or more teeth per engine cycle (a 12 tooth crank wheel or better), instead of only when "Always use instant RPM" was enabled. RPM, and everything derived from it, now responds within a fraction of an engine cycle instead of once per cycle. The setting remains, and now forces instant RPM on triggers with fewer teeth than that.
 
 ### Fixed
  - Changing or clearing the MAP 2, MAF, MAF 2 or fuel level sensor input no longer leaves the sensor reading its old pin (and the pin claimed) until the ECU is rebooted. MAF and fuel level input changes now take effect immediately, like other analog sensors
