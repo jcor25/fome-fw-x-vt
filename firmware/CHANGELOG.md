@@ -73,6 +73,7 @@ or
  - Fix updating wideband O2 sensor modules with older firmware
  - DFCO "After cut timing ramp-in time" is now actually respected, rather than ignored and using 0.5s. #819
  - Fix an issue where STM32H7-based ECUs can freeze while applying an engine preset #834
+ - DFCO no longer cuts fuel while cranking or while after-start enrichment is active #820
 
 ## May 2026 Release
 
