@@ -390,16 +390,19 @@ static void configureDfcoReadyToCut(EngineTestHelper& eth) {
 	Sensor::setMockValue(SensorType::Rpm, 2000);
 }
 
-// Crank, then catch and run - post-cranking enrichment starts tapering from here
-static void crankAndStart(EngineTestHelper& eth) {
-	engine->rpmCalculator.setRpmValue(200);
-	ASSERT_TRUE(engine->rpmCalculator.isCranking());
-	eth.engine.periodicFastCallback();
-
-	engine->rpmCalculator.setRpmValue(2000);
-	ASSERT_TRUE(engine->rpmCalculator.isRunning());
-	eth.engine.periodicFastCallback();
-}
+// Crank, then catch and run - post-cranking enrichment starts tapering from here.
+// A macro rather than a function so a failed assertion reports the calling test's line,
+// and an ASSERT failure stops the test instead of just returning from a helper.
+#define CRANK_AND_START(eth)                                                                                           \
+	do {                                                                                                               \
+		engine->rpmCalculator.setRpmValue(200);                                                                        \
+		ASSERT_TRUE(engine->rpmCalculator.isCranking());                                                               \
+		(eth).engine.periodicFastCallback();                                                                           \
+                                                                                                                       \
+		engine->rpmCalculator.setRpmValue(2000);                                                                       \
+		ASSERT_TRUE(engine->rpmCalculator.isRunning());                                                                \
+		(eth).engine.periodicFastCallback();                                                                           \
+	} while (0)
 
 TEST(fuelCut, noCutWhileCranking) {
 	EngineTestHelper eth(engine_type_e::TEST_ENGINE);
@@ -429,7 +432,7 @@ TEST(fuelCut, heldOffDuringAfterStartEnrichment) {
 	engineConfiguration->postCrankingDurationSec = 10;
 	auto& dfco = engine->module<DfcoController>().unmock();
 
-	crankAndStart(eth);
+	CRANK_AND_START(eth);
 	EXPECT_NEAR(1.5, engine->fuelComputer.running.postCrankingFuelCorrection, 0.01);
 	EXPECT_FALSE(dfco.cutFuel());
 
@@ -460,7 +463,7 @@ TEST(fuelCut, heldOffDuringAfterStartEnrichmentTable) {
 	}
 	auto& dfco = engine->module<DfcoController>().unmock();
 
-	crankAndStart(eth);
+	CRANK_AND_START(eth);
 	EXPECT_FALSE(dfco.cutFuel());
 
 	eth.moveTimeForwardUs(5'000'000);
@@ -484,7 +487,7 @@ TEST(fuelCut, heldOffAgainAfterRestart) {
 	auto& dfco = engine->module<DfcoController>().unmock();
 
 	// First start, run long enough for the taper to finish
-	crankAndStart(eth);
+	CRANK_AND_START(eth);
 	eth.moveTimeForwardUs(11'000'000);
 	eth.engine.periodicFastCallback();
 	EXPECT_TRUE(dfco.cutFuel());
@@ -492,6 +495,6 @@ TEST(fuelCut, heldOffAgainAfterRestart) {
 	// Stall, then a hot restart: enrichment applies again, so DFCO is held off again
 	engine->rpmCalculator.setRpmValue(0);
 	eth.engine.periodicFastCallback();
-	crankAndStart(eth);
+	CRANK_AND_START(eth);
 	EXPECT_FALSE(dfco.cutFuel());
 }
