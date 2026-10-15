@@ -42,7 +42,6 @@ TEST(fuelCut, coasting) {
 	Sensor::setMockValue(SensorType::DriverThrottleIntent, 60);
 	// set 'running' RPM - just above RpmHigh threshold
 	Sensor::setMockValue(SensorType::Rpm, engineConfiguration->coastingFuelCutRpmHigh + 1);
-	// DFCO only runs once the engine is RUNNING
 	engine->rpmCalculator.setRpmValue(engineConfiguration->coastingFuelCutRpmHigh + 1);
 	// 'advance' time (amount doesn't matter)
 	eth.moveTimeForwardUs(1000);
@@ -99,6 +98,7 @@ TEST(fuelCut, coasting) {
 
 	// Now set RPM just above RpmHigh threshold
 	Sensor::setMockValue(SensorType::Rpm, engineConfiguration->coastingFuelCutRpmHigh + 1);
+	engine->rpmCalculator.setRpmValue(engineConfiguration->coastingFuelCutRpmHigh + 1);
 	eth.engine.periodicFastCallback();
 
 	// Fuel cut-off is active again!
@@ -164,7 +164,6 @@ TEST(fuelCut, delay) {
 	Sensor::setMockValue(SensorType::DriverThrottleIntent, 60);
 	// set 'running' RPM - just above RpmHigh threshold
 	Sensor::setMockValue(SensorType::Rpm, engineConfiguration->coastingFuelCutRpmHigh + 1);
-	// DFCO only runs once the engine is RUNNING
 	engine->rpmCalculator.setRpmValue(engineConfiguration->coastingFuelCutRpmHigh + 1);
 	// 'advance' time (amount doesn't matter)
 	eth.moveTimeForwardUs(1000);
@@ -238,7 +237,6 @@ TEST(fuelCut, mapTable) {
 	Sensor::setMockValue(SensorType::DriverThrottleIntent, 0);
 	// set 'running' RPM in the middle of two interpolation values
 	Sensor::setMockValue(SensorType::Rpm, 2500);
-	// DFCO only runs once the engine is RUNNING
 	engine->rpmCalculator.setRpmValue(2500);
 	// 'advance' time (amount doesn't matter)
 	eth.moveTimeForwardUs(1000);
@@ -288,7 +286,6 @@ TEST(fuelCut, clutch) {
 	Sensor::setMockValue(SensorType::Clt, hotClt);
 	Sensor::setMockValue(SensorType::DriverThrottleIntent, 0);
 	Sensor::setMockValue(SensorType::Rpm, engineConfiguration->coastingFuelCutRpmHigh + 1);
-	// DFCO only runs once the engine is RUNNING
 	engine->rpmCalculator.setRpmValue(engineConfiguration->coastingFuelCutRpmHigh + 1);
 	Sensor::setMockValue(SensorType::Map, 0);
 	eth.moveTimeForwardUs(1000);
@@ -325,8 +322,6 @@ TEST(fuelCut, clutch) {
 	EXPECT_CUT();
 }
 
-// After the cut ends, timing retard ramps back out over the configured duration.
-// This used to be hardcoded to 0.5s, ignoring the setting entirely.
 TEST(fuelCut, timingRetardRampIn) {
 	EngineTestHelper eth(engine_type_e::TEST_ENGINE);
 	EXPECT_CALL(*eth.mockAirmass, getAirmass(_, _)).WillRepeatedly(Return(AirmassResult{1.0f, 50.0f}));
@@ -350,7 +345,6 @@ TEST(fuelCut, timingRetardRampIn) {
 	Sensor::setMockValue(SensorType::Clt, engineConfiguration->coastingFuelCutClt + 1);
 	Sensor::setMockValue(SensorType::Map, 0);
 	Sensor::setMockValue(SensorType::Rpm, engineConfiguration->coastingFuelCutRpmHigh + 1);
-	// DFCO only runs once the engine is RUNNING
 	engine->rpmCalculator.setRpmValue(engineConfiguration->coastingFuelCutRpmHigh + 1);
 	Sensor::setMockValue(SensorType::DriverThrottleIntent, 0);
 

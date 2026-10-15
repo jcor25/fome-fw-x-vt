@@ -11,7 +11,7 @@ bool DfcoController::getState() const {
 		return false;
 	}
 
-	// Never cut while cranking or spinning up - the DFCO RPM thresholds can overlap the cranking range
+	// RPM alone cannot distinguish cranking from running when thresholds overlap.
 	if (!engine->rpmCalculator.isRunning()) {
 		return false;
 	}
