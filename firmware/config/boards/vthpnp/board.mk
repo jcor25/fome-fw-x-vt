@@ -28,8 +28,9 @@ SHORT_BOARD_NAME = vthpnp
 
 IS_STM32F429 = yes
 
-# WiFi consumes extra SRAM vs proteus-base, so reduce Lua heap to fit in 192KB
-DDEFS += -DLUA_USER_HEAP=50000
+# WiFi (TS console, plus the log/ini web server) consumes extra SRAM vs proteus-base, so reduce
+# Lua heap to fit in 192KB. 34000 still fits every example script; the largest peaks around 29000.
+DDEFS += -DLUA_USER_HEAP=34000
 
 
 
