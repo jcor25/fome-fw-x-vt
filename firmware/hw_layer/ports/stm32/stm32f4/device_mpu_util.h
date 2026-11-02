@@ -11,6 +11,10 @@
 
 #define MCU_SERIAL_NUMBER_LOCATION (uint8_t*)(0x1FFF7A10)
 
+// Clears option bytes that FOME never sets on F4 but that corruption can (DB1M, BFB2), then resets.
+// Does nothing, and writes nothing, on a healthy chip.
+void repairFlashOptionBytes();
+
 #define SPI_CR1_8BIT_MODE 0
 #define SPI_CR2_8BIT_MODE 0
 

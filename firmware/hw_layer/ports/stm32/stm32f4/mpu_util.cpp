@@ -6,6 +6,7 @@
  */
 #include "pch.h"
 #include "flash_int.h"
+#include "stm32f4xx_hal_flash.h"
 
 bool allowFlashWhileRunning() {
 	// Never allow flash while running on F4, dual bank not implemented.
@@ -40,6 +41,38 @@ uintptr_t getFlashAddrSecondCopy() {
 		return 0x000000000;
 	}
 	return 0x080C0000;
+}
+
+void repairFlashOptionBytes() {
+#ifdef FLASH_OPTCR_DB1M
+	// FOME's flash code (firmware and bootloader) numbers sectors for the single-bank layout and never
+	// uses dual-bank mode on F4. On a 1 MB F42x/43x, DB1M splits flash into two 512 KB banks, which makes
+	// every erase above 0x08080000 silently do nothing: the tune can't be saved and OpenBLT updates fail.
+	// BFB2 makes the chip boot into ST's DFU bootloader instead of FOME. Neither is ever set on purpose,
+	// only by corrupted option bytes, so clear them if found.
+	uint32_t bad = FLASH_OPTCR_BFB2;
+	if (TM_ID_GetFlashSize() == 1024) {
+		// DB1M only means something on 1 MB parts
+		bad |= FLASH_OPTCR_DB1M;
+	}
+
+	if ((FLASH->OPTCR & bad) == 0) {
+		// Healthy: don't touch the option bytes at all
+		return;
+	}
+
+	HAL_FLASH_OB_Unlock();
+
+	while (FLASH->SR & FLASH_SR_BSY) {}
+
+	// Only these bits change. RDP, BOR and write protection are written back exactly as they are.
+	FLASH->OPTCR &= ~bad;
+	HAL_FLASH_OB_Launch();
+	HAL_FLASH_OB_Lock();
+
+	// Start over with the normal flash layout
+	NVIC_SystemReset();
+#endif // FLASH_OPTCR_DB1M
 }
 /*
 STOP mode for F7 is needed for wakeup from multiple EXTI pins. For example PD0, which is CAN rx.

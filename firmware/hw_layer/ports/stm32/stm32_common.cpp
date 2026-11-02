@@ -468,6 +468,11 @@ void baseMCUInit() {
 	// looks like this holds a random value on start? Let's set a nice clean zero
 	DWT->CYCCNT = 0;
 
+#ifdef STM32F4XX
+	// Undo option byte corruption (dual-bank mode, boot from DFU) before anything relies on the flash layout
+	repairFlashOptionBytes();
+#endif
+
 	// Changing BOR rewrites the whole option byte block, and an interrupted rewrite can corrupt it
 	// (read protection, flash bank layout). Bootloaders built before level 3 set level 1 on every
 	// boot, and on F4 the bootloader isn't updated with the firmware, so insisting on level 3 here

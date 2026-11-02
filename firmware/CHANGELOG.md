@@ -82,6 +82,7 @@ or
  - Fix vehicle speed indication while using a BMW E90/Mk60e5 ABS controller as the speed source
  - DFCO no longer cuts fuel while cranking or while after-start enrichment is active #820
  - F4 ECUs updated with the console no longer rewrite their option bytes on every power-up, which could lock the ECU into read protection
+ - F4 ECUs whose option bytes were corrupted into dual-bank mode can save their tune and take console updates again, after one firmware update over DFU
 
 ## May 2026 Release
 
