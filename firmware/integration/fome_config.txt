@@ -106,7 +106,7 @@ struct_no_prefix persistent_config_s
 
 struct_no_prefix engine_configuration_s
 
-#define BLOCKING_FACTOR 1400
+#define BLOCKING_FACTOR 1410
 
 #define LUA_PWM_COUNT 8
 #define LUA_DIGITAL_INPUT_COUNT 8
@@ -686,7 +686,7 @@ bit is_enabled_spi_2
 	bit is_enabled_spi_3
 	bit isSdCardEnabled;enable sd/disable sd
 	bit rusefiVerbose29b,"29 bit","11 bit";Use 11 bit (standard) or 29 bit (extended) IDs for FOME verbose CAN format.
-	bit unused580b5
+	bit boostCutUseTable,"Table","Fixed";Fixed uses a single boost cut pressure. Table looks up the boost cut pressure from a table with selectable axes, for example to raise the cut with ethanol content.
 	bit useStepperIdle;This setting should only be used if you have a stepper motor idle valve and a stepper motor driver installed.
 	
 	bit enabledStep1Limiter
@@ -1096,6 +1096,8 @@ int16_t tps2Max;;"ADC", 1, 0, 0, 1023, 0
 	spi_device_e accelerometerSpiDevice;
 
 	float boostCutPressure;MAP value above which fuel is cut in case of overboost.\nSet to 0 to disable overboost cut.;"kPa (absolute)", 1, 0, 0, 1000, 0
+	gppwm_channel_e boostCutXAxis;X axis source for the boost cut table.
+	gppwm_channel_e boostCutYAxis;Y axis source for the boost cut table.
 
 	uint8_t[16] autoscale tchargeBins;;"kg/h", 5, 0, 0, 1200, 0
 	uint8_t[16] autoscale tchargeValues;;"ratio", 0.01, 0, 0, 1, 2
@@ -1487,6 +1489,12 @@ pin_input_mode_e[LUA_DIGITAL_INPUT_COUNT iterate] luaDigitalInputPinModes;
 
 	torque_limiter_cfg[TORQUE_LIMITER_COUNT iterate] torqueLimiters;
 
+	adc_channel_e clutchPositionSensor;Analog clutch pedal position sensor input.
+	uint16_t autoscale clutchPositionUpVoltage;Sensor voltage with the clutch released (pedal up). Reads 0%.;"volts", {1/@@PACK_MULT_VOLTAGE@@}, 0, 0, 5, 3
+	uint16_t autoscale clutchPositionDownVoltage;Sensor voltage with the clutch pedal on the floor. Reads 100%.;"volts", {1/@@PACK_MULT_VOLTAGE@@}, 0, 0, 5, 3
+	uint8_t clutchAppliedBelow;Clutch pedal position below which the clutch is fully applied (engaged, not slipping).;"%", 1, 0, 0, 100, 0
+	uint8_t clutchReleasedAbove;Clutch pedal position above which the clutch is fully released (disengaged, engine decoupled from the wheels).;"%", 1, 0, 0, 100, 0
+
 ! end of engine_configuration_s
 end_struct
 
@@ -1820,6 +1828,14 @@ uint8_t[8] postCrankingEnrichRuntimeBins;;"sec", 1, 0, 0, 180, 0
 	int16_t[FAN_TABLE_SIZE] autoscale fan2XAxisBins;;"", 0.1, 0, -10000, 10000, 1
 	uint8_t[FAN_TABLE_SIZE x FAN_TABLE_SIZE] autoscale fan2DutyAcOff;Fan 2 duty cycle when AC is off;"%", 0.5, 0, 0, 100, 1
 	uint8_t[FAN_TABLE_SIZE x FAN_TABLE_SIZE] autoscale fan2DutyAcOn;Fan 2 duty cycle when AC is on;"%", 0.5, 0, 0, 100, 1
+
+	#define BOOST_CUT_SIZE 4
+
+	begin_table
+		table_rows num BOOST_CUT_SIZE int16_t autoscale boostCutYBins;;"", 0.1, 0, -3000, 3000, 1
+		table_cols num BOOST_CUT_SIZE int16_t autoscale boostCutXBins;;"", 0.1, 0, -3000, 3000, 1
+		table_values uint16_t boostCutTable;MAP value above which fuel is cut in case of overboost. There is no disable value: to allow unlimited boost in a region, set a value above the range of the MAP sensor.;"kPa (absolute)", 1, 0, 0, 1000, 0
+	end_table
 end_struct
 
 ! Pedal Position Sensor
