@@ -468,7 +468,14 @@ void baseMCUInit() {
 	// looks like this holds a random value on start? Let's set a nice clean zero
 	DWT->CYCCNT = 0;
 
-	BOR_Set(BOR_Level_3); // Previously level 1, lets try level 3 and chceck if it helps with random flash corruptionq
+	// Changing BOR rewrites the whole option byte block, and an interrupted rewrite can corrupt it
+	// (read protection, flash bank layout). Bootloaders built before level 3 set level 1 on every
+	// boot, and on F4 the bootloader isn't updated with the firmware, so insisting on level 3 here
+	// would make bootloader and firmware rewrite the option bytes twice per boot. Only program BOR
+	// on a chip where it's still off (the factory default), and leave any level already set alone.
+	if (BOR_Get() == BOR_Level_None) {
+		BOR_Set(BOR_Level_3);
+	}
 }
 
 extern uint32_t __main_stack_base__;
